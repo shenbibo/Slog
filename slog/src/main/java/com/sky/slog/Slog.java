@@ -241,7 +241,9 @@ public final class Slog {
     }
 
     /**
-     * 添加对象解析器，每一个确切的类型，只能添加一个对象解析器，如果要添加的已经存在，则替换原来的旧的
+     * 添加对象解析器，每一个确切的类型，只能添加一个对象解析器，如果要添加的已经存在，则替换原来的旧的，并且添加到解析器列表首位。
+     * <p>
+     * 当一个对象存在多个其超类的解析器时，取列表从0开始遇到的第一个超类作为解析器。
      */
     public static void addObjectParser(Parser parserAdapter) {
         ParseObject.addObjectParser(parserAdapter);

@@ -6,9 +6,27 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.sky.slog.Helper.*;
-import static com.sky.slog.LogConstant.*;
-import static com.sky.slog.Slog.*;
+import static com.sky.slog.Helper.covertJson;
+import static com.sky.slog.Helper.covertXml;
+import static com.sky.slog.Helper.createThreadInfo;
+import static com.sky.slog.Helper.formatMessage;
+import static com.sky.slog.Helper.getSimpleClassName;
+import static com.sky.slog.Helper.getStackTraceString;
+import static com.sky.slog.Helper.splitString;
+import static com.sky.slog.LogConstant.BOTTOM_BORDER;
+import static com.sky.slog.LogConstant.HORIZONTAL_DOUBLE_LINE;
+import static com.sky.slog.LogConstant.LINE_SEPARATOR;
+import static com.sky.slog.LogConstant.MIDDLE_BORDER;
+import static com.sky.slog.LogConstant.OBJECT_NULL_STRING;
+import static com.sky.slog.LogConstant.TOP_BORDER;
+import static com.sky.slog.Slog.ASSERT;
+import static com.sky.slog.Slog.DEBUG;
+import static com.sky.slog.Slog.ERROR;
+import static com.sky.slog.Slog.FULL;
+import static com.sky.slog.Slog.INFO;
+import static com.sky.slog.Slog.NONE;
+import static com.sky.slog.Slog.VERBOSE;
+import static com.sky.slog.Slog.WARN;
 
 /**
  * [日志中间处理转发类]
@@ -205,11 +223,10 @@ class LogAssemblerImpl extends LogAssembler {
 
         logContent(compoundMessages, t, originalObject, args);
         logBottomBorder(compoundMessages);
-
         dispatchLog(priority, tag, t, compoundMessages.toArray(new String[compoundMessages.size()]), originalObject, args);
     }
 
-    /** 组装格式化字符串或解析对象，并且如果长度超过限制则进行切除 */
+    /** 组装格式化字符串或解析对象，并且如果长度超过限制则进行分割 */
     private String[] compoundMessage(Throwable t, Object originalObject, Object... args) {
         String compoundMessage;
         if (originalObject == NULL_OBJECT || originalObject == NULL_STRING) {
@@ -217,9 +234,9 @@ class LogAssemblerImpl extends LogAssembler {
         } else {
             if (originalObject instanceof String) {
                 // 优化代码，如果args参数为null,或者长度为0，则直接返回字符串
-                if(args == null || args.length == 0){
+                if (args == null || args.length == 0) {
                     compoundMessage = (String) originalObject;
-                }else{
+                } else {
                     compoundMessage = formatMessage((String) originalObject, args);
                 }
             } else {
