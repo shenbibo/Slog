@@ -4,8 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * [日志组装器，对日志进行包裹，显示成特定的类型]
- * [detail]
+ * 日志组装器，对日志进行包裹，显示成特定的类型
  * Created by Sky on 2017/5/25.
  */
 
@@ -46,7 +45,7 @@ public abstract class LogAssembler {
     /** Log at {@code priority} an exception and a message with optional format args. */
     public abstract void log(int priority, String tag, Throwable t, String normalMsg, @Nullable Object... args);
 
-    /** 打印日志 */
+    /** 打印对象 */
     public abstract void object(int priority, @Nullable String tag, @Nullable Object object);
 
     public abstract void json(String json);

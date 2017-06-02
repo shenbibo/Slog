@@ -11,6 +11,7 @@ import android.util.Log;
 public class LogcatTree extends Tree {
     @Override
     protected void log(int priority, String tag, String message) {
+        tag = tag.length() > 23 ? tag.substring(0, 23) : tag;
         if (priority == Log.ASSERT) {
             Log.wtf(tag, message);
         } else {

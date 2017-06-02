@@ -43,7 +43,7 @@ dependencies {
 
 //添加
 publish {
-    userOrg = 'freecode'//bintray.com用户名
+    userOrg = 'skyshen'//bintray.com用户名
     groupId = 'com.sky.slog'//jcenter上的路径
     artifactId = 'slog'//项目名称
     publishVersion = '0.1.0'//版本号
