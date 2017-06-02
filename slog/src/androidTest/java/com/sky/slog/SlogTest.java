@@ -2,10 +2,13 @@ package com.sky.slog;
 
 import android.annotation.SuppressLint;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 
+import com.orhanobut.logger.Logger;
 import com.sky.slog.bean.Student;
 import com.sky.slog.bean.StudentParser;
+import com.vise.log.ViseLog;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,6 +16,9 @@ import org.junit.runner.RunWith;
 
 import java.util.*;
 import java.util.concurrent.*;
+
+import timber.log.Timber;
+import timber.log.Timber.DebugTree;
 
 /**
  * [function]
@@ -37,9 +43,16 @@ public class SlogTest {
 
     @BeforeClass
     public static void init() {
-        Slog.init(new LogcatTree()).showThreadInfo(true).prefixTag("sky.test.tools");
+        Slog.init(new LogcatTree()).showThreadInfo(true).prefixTag("test");
         Slog.addObjectParser(new StudentParser());
-        //        Logger.init();
+        Logger.init("printTime").methodCount(1);
+        Timber.plant(new DebugTree());
+        ViseLog.getLogConfig()
+               .configTagPrefix("printTime")
+               .configShowBorders(true)
+               .configAllowLog(true)
+               .configLevel(Log.VERBOSE);
+        ViseLog.plant(new com.vise.log.inner.LogcatTree());
     }
 
     @Test
@@ -53,6 +66,7 @@ public class SlogTest {
         Slog.t("custom").e("i prefixTag Test");
         Slog.t("custom2").e("i prefixTag test = %d", 2);
         Slog.t("custom3").e(new Throwable(), "i prefixTag test = %d", 3);
+        //        Slog.s(true).e("112", null);
     }
 
     @Test
@@ -83,6 +97,158 @@ public class SlogTest {
         Slog.o(1).i("1 offset");
         Slog.o(2).i("2 offset");
         Slog.o(100).i("100 offset");
+    }
+
+    /**
+     * 测试三个开源工具格式化输出时的性能，结论：
+     * 1000条日志下， 表现从好到坏 Logger > Slog > ViseLog
+     * 10000条下，  表现从好到坏  Slog > Logger > ViseLog
+     */
+    @Test
+    public void formatLogOutputTest() {
+        long startTime;
+        long endTime;
+        String tag = "printTime";
+        String testStr = "this is a test string, so i will print the time to you, this is the log msg, good good day day up";
+        // 默认设置测试1000
+        Slog.getSetting().prefixTag(tag);
+        Slog.getSetting().simpleMode(false).methodCount(1).showThreadInfo(true);
+        Log.i(tag, "start for Slog test");
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String slogTime = "slog time = " + (endTime - startTime) + '\n';
+//
+        Log.i(tag, "start for Logger test");
+
+         //logger 工具在连续打印大量的日志时，可能会出现读错误
+         //logger
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Logger.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String loggerTime = "Logger time = " + (endTime - startTime) + '\n';
+
+
+        // logger 工具在连续打印大量的日志时，会出现读错误
+        Log.i(tag, "start for ViseLog test");
+//        // ViseLog
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            ViseLog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String viseLogTime = "ViseLog time = " + (endTime - startTime) + '\n';
+
+        Slog.t(tag).i("stand mode test 1 method count, show thread info\n" + slogTime + loggerTime + viseLogTime);
+    }
+
+    /**
+     * 开源日志工具简单模式下性能，因为三个工具对简单模式的定义都不一样，所以测试出来的数据差别会非常大
+     * 结论：
+     * 10000条下， Slog > Timber > Logger > ViseLog
+     * 1000条下，
+     */
+    @Test
+    public void simpleModeTest() {
+        long startTime;
+        long endTime;
+        String tag = "printTime";
+        String testStr = "this is a test string, so i will print the time to you, this is the log msg, good good day day up";
+        // 默认设置测试10000
+        Slog.getSetting().prefixTag(tag);
+        Slog.getSetting().simpleMode(true);
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String slogTime = "slog time = " + (endTime - startTime) + '\n';
+
+        // logger
+        startTime = System.currentTimeMillis();
+        Logger.t("printTime").getSettings().methodCount(0).hideThreadInfo();
+        for (int i = 0; i < 1000; i++) {
+            Logger.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String loggerTime = "Logger time = " + (endTime - startTime) + '\n';
+
+        // ViseLog
+        ViseLog.getLogConfig().configShowBorders(false);
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            ViseLog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String viseLogTime = "ViseLog time = " + (endTime - startTime) + '\n';
+
+        // time test
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            Timber.tag(tag).i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String timberTime = "timber  time = " + (endTime - startTime) + '\n';
+
+        Log.i(tag, "simple mode test\n" + slogTime + loggerTime + viseLogTime + timberTime);
+    }
+
+    @Test
+    public void loopPrintLogTest() {
+        long startTime;
+        long endTime;
+        String tag = "printTime";
+        String testStr = "this is a test string, so i will print the time to you, this is the log msg, good good day day up";
+        // 默认设置测试1000
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String time1 = "default config time = " + (endTime - startTime) + '\n';
+
+        // 关闭线程信息测试
+        Slog.getSetting().showThreadInfo(false);
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String time2 = "close thread info config time = " + (endTime - startTime) + '\n';
+
+        // 关闭线程信息和调用堆栈信息测试
+        Slog.getSetting().methodCount(0);
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String time3 = "close thread info and method stack config time = " + (endTime - startTime) + '\n';
+
+        // simple mode test
+        Slog.getSetting().simpleMode(true);
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String time4 = "simple mode config time = " + (endTime - startTime) + '\n';
+
+        // logcat print
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Log.i(tag, testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String time5 = "logcat print time = " + (endTime - startTime);
+
+        Slog.getSetting().simpleMode(false);
+        Slog.t(tag).i(time1 + time2 + time3 + time4 + time5);
+
     }
 
     //    @Test

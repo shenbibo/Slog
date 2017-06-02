@@ -2,7 +2,6 @@ package com.sky.slog;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,7 +172,7 @@ class LogAssemblerImpl extends LogAssembler {
     }
 
     private void logParse(int priority, String tag, Throwable t, Object originalObject, Object... args) {
-        if (!isLoggable(priority) || !isLegalPriority(priority)) {
+        if (!isLoggable(priority)) {
             return;
         }
 
@@ -185,6 +184,7 @@ class LogAssemblerImpl extends LogAssembler {
         }
 
         logCompoundMode(priority, finalTag, t, originalObject, args);
+
     }
 
     private void logSimpleMode(int priority, String tag, Throwable t, Object originalObject, Object... args) {
@@ -216,7 +216,12 @@ class LogAssemblerImpl extends LogAssembler {
             compoundMessage = OBJECT_NULL_STRING;
         } else {
             if (originalObject instanceof String) {
-                compoundMessage = formatMessage((String) originalObject, args);
+                // 优化代码，如果args参数为null,或者长度为0，则直接返回字符串
+                if(args == null || args.length == 0){
+                    compoundMessage = (String) originalObject;
+                }else{
+                    compoundMessage = formatMessage((String) originalObject, args);
+                }
             } else {
                 compoundMessage = ParseObject.objectToString(originalObject);
             }
@@ -297,9 +302,6 @@ class LogAssemblerImpl extends LogAssembler {
     private void dispatchLog(int priority, String tag, Throwable t, String[] compoundMessages, Object originalObject,
             Object... args) {
         if (originalObject instanceof String) {
-            if (originalObject == NULL_STRING) {
-                Log.i("LogAssembler", "is null string");
-            }
             dispatcher.log(priority, tag, t, compoundMessages, originalObject == NULL_STRING ? null : (String) originalObject,
                     args);
         } else {
@@ -388,10 +390,6 @@ class LogAssemblerImpl extends LogAssembler {
     }
 
     private boolean isLoggable(int priority) {
-        return priority >= setting.getLogPriority();
-    }
-
-    private boolean isLegalPriority(int priority) {
-        return priority > FULL && priority < NONE;
+        return priority >= setting.getLogPriority() && priority > FULL && priority < NONE;
     }
 }

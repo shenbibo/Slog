@@ -8,8 +8,6 @@ import com.sky.slog.parse.Parser;
 import org.json.*;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -123,6 +121,6 @@ class Helper {
     }
 
     static String createThreadInfo(Thread thread){
-        return "name = " + thread.getName() + ", tid = " + thread.getId();
+        return "Thread.name = " + thread.getName();
     }
 }
