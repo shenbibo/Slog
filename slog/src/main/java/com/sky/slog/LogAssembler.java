@@ -3,7 +3,14 @@ package com.sky.slog;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.sky.slog.Helper.covertJson;
+import static com.sky.slog.Helper.covertXml;
+import static com.sky.slog.Slog.DEBUG;
+import static com.sky.slog.Slog.FULL;
+import static com.sky.slog.Slog.NONE;
 
 /**
  * 日志组装器，对日志进行包裹，显示成特定的类型
@@ -11,82 +18,170 @@ import java.util.List;
  */
 
 public abstract class LogAssembler {
-//    /** Log a verbose message with optional format args. */
-//    public abstract void v(String normalMsg, @Nullable Object... args);
-//
-//    /** Log a debug message with optional format args. */
-//    public abstract void d(String normalMsg, @Nullable Object... args);
-//
-//    /** Log a debug message for the object */
-//    public abstract void dO(Object object);
-//
-//    /** Log an info message with optional format args. */
-//    public abstract void i(String normalMsg, @Nullable Object... args);
-//
-//    /** Log a debug message for the object */
-//    public abstract void iO(Object object);
-//
-//    /** Log a warning message with optional format args. */
-//    public abstract void w(String normalMsg, @Nullable Object... args);
-//
-//    /** Log a warning exception and a message with optional format args. */
-//    public abstract void w(Throwable t, String normalMsg, @Nullable Object... args);
-//
-//    /** Log an error message with optional format args. */
-//    public abstract void e(String normalMsg, @Nullable Object... args);
-//
-//    /** Log an error exception and a message with optional format args. */
-//    public abstract void e(Throwable t, String normalMsg, @Nullable Object... args);
-//
-//    /** Log an assert message with optional format args. */
-//    public abstract void wtf(String normalMsg, @Nullable Object... args);
-//
-//    /** Log an throwable and assert message with optional format args. */
-//    public abstract void wtf(Throwable t, String normalMsg, @Nullable Object... args);
+    /**
+     * 最小的栈偏移值，因为该类本身和包裹它的类，所以默认偏移2
+     */
+    protected static final int MIN_STACK_OFFSET = 6;
+
+    /** 当传递的message是空时，先包装成一个空对象，在分发之前在变成原来的null */
+    @SuppressWarnings("RedundantStringConstructorCall")
+    protected final String NULL_STRING = new String("");
+    /** 当日志方法传递的object是空时，先包装成一个空对象，在分发之前在变成原来的null **/
+    protected final Object NULL_OBJECT = new Object();
+
+    protected Setting setting;
+    protected List<String> callerClassNames;
+    protected LogDispatcher dispatcher;
+    protected String thisClassName = getClass().getName();
 
     /** Log at {@code priority} an exception and a message with optional format args. */
-    public abstract void log(int priority, String tag, Throwable t, String normalMsg, @Nullable Object... args);
+    public void log(int priority, String tag, Throwable t, String msg, @Nullable Object... args) {
+        if (msg == null) {
+            msg = NULL_STRING;
+        }
+
+        logParse(priority, tag, t, msg, args);
+    }
 
     /** 打印对象 */
-    public abstract void object(int priority, @Nullable String tag, @Nullable Object object);
+    public void object(int priority, @Nullable String tag, @Nullable Object object) {
+        if (object == null) {
+            object = NULL_OBJECT;
+        }
 
-    public abstract void json(String json);
+        if (object instanceof String) {
+            log(priority, tag, null, (String) object);
+        } else {
+            logParse(priority, tag, null, object);
+        }
+    }
 
-    public abstract void xml(String xml);
+    public void json(String json) {
+        log(DEBUG, null, null, covertJson(json));
+    }
 
-//    /** 设置接下来该线程打印一次日志的tag */
-//    public abstract LogAssembler t(String tag);
-//
-//    /**
-//     * 调用该方法后，确定接下来打印的日志显示堆栈内方法的个数，若{@code simpleCode}为true，则设置无效
-//     *
-//     * @param methodCount
-//     */
-//    public abstract LogAssembler m(Integer methodCount);
-//
-//    /**
-//     * 为true，则为普通log打印，有最高的效率
-//     *
-//     * @param simpleMode
-//     */
-//    public abstract LogAssembler s(Boolean simpleMode);
-//
-//    /**
-//     * 调用该方法后，确定接下来打印的日志是否携带线程信息，若{@code simpleCode}为true，则设置无效
-//     *
-//     * @param hideThreadInfo
-//     */
-//    public abstract LogAssembler th(Boolean hideThreadInfo);
-//
-//    /**
-//     * 调用该方法后，设置打印堆栈方法的偏移值，默认值为0，若{@code simpleCode}为true，则设置无效
-//     */
-//    public abstract LogAssembler o(Integer methodOffset);
+    public void xml(String xml) {
+        log(DEBUG, null, null, covertXml(xml));
+    }
 
     /**
-     * @param callerClassName   调用该方法的类的class
-     * @param logSetting    日志配置
-     * @param logDispatcher 日志分发器
+     * @param callerClassName 其上层调用这的类名数组，主要用于过滤日志的打印堆栈
+     * @param logSetting      日志配置
+     * @param logDispatcher   日志分发器
      */
-    abstract void init(@NonNull List<String> callerClassName, @NonNull Setting logSetting, @NonNull LogDispatcher logDispatcher);
+    void init(@NonNull List<String> callerClassName, @NonNull Setting logSetting, @NonNull LogDispatcher logDispatcher) {
+        this.callerClassNames = callerClassName;
+        setting = logSetting;
+        dispatcher = logDispatcher;
+    }
+
+    protected void logParse(int priority, String tag, Throwable t, Object originalObject, Object... args) {
+        if (!isLoggable(priority)) {
+            return;
+        }
+
+        String finalTag = tag != null ? setting.createCompoundTag(tag) : setting.getLocalTag();
+        String[] compoundMessages;
+
+        // 简单模式不组装消息直接返回
+        if (setting.isLocalSimpleMode()) {
+            compoundMessages = onSimpleModeLog(priority, finalTag, t, originalObject, args);
+        } else {
+            int localMethodCount = setting.getLocalMethodCount();
+            // 初始化时指定容量，避免发生拷贝
+            List<String> compoundMessagesList = new ArrayList<>(12 + (int) (localMethodCount / 0.75));
+            Thread curThread = Thread.currentThread();
+
+            // 添加日志头
+            onFormatModeLogTop(compoundMessagesList);
+
+            // 添加线程信息
+            if (setting.isLocalShowThreadInfo()) {
+                onFormatModeLogThreadInfo(compoundMessagesList, curThread);
+            }
+
+            // 添加函数调用堆栈
+            if (localMethodCount > 0) {
+                StackTraceElement[] trace = curThread.getStackTrace();
+                int finalStackOffset = getFinalStackOffset(trace);
+                int finalMethodCount = getFinalMethodCount(localMethodCount, finalStackOffset, trace.length);
+                if (finalMethodCount > 0) {
+                    onFormatModeLogMethodStackTrace(compoundMessagesList, finalMethodCount, finalStackOffset, trace);
+                }
+            }
+
+            // 打印消息内容
+            onFormatModeLogContent(compoundMessagesList, t, originalObject, args);
+
+            // 添加日志尾
+            onFormatModeLogBottom(compoundMessagesList);
+
+            compoundMessages = compoundMessagesList.toArray(new String[compoundMessagesList.size()]);
+        }
+
+        dispatchLog(priority, finalTag, t, compoundMessages, originalObject, args);
+    }
+
+    protected abstract String[] onSimpleModeLog(int priority, String tag, Throwable t, Object originalObject, Object... args);
+
+    protected abstract void onFormatModeLogMethodStackTrace(List<String> compoundMessagesList, int methodCount, int stackOffset, StackTraceElement[] trace);
+
+    protected abstract void onFormatModeLogThreadInfo(List<String> compoundMessagesList, Thread curThread);
+
+    protected abstract void onFormatModeLogContent(List<String> compoundMessagesList, Throwable t, Object originalObject, Object[] args);
+
+    protected boolean isLoggable(int priority) {
+        return priority >= setting.getLogPriority() && priority > FULL && priority < NONE;
+    }
+
+    protected void onFormatModeLogTop(List<String> compoundMessagesList) {
+    }
+
+    protected void onFormatModeLogBottom(List<String> compoundMessagesList) {
+    }
+
+    protected void dispatchLog(int priority, String tag, Throwable t, String[] compoundMessages, Object originalObject,
+            Object... args) {
+        if (originalObject instanceof String) {
+            dispatcher.log(priority, tag, t, compoundMessages, originalObject == NULL_STRING ? null : (String) originalObject,
+                    args);
+        } else {
+            dispatcher.log(priority, tag, compoundMessages, originalObject == NULL_OBJECT ? null : originalObject);
+        }
+    }
+
+    protected int getFinalStackOffset(StackTraceElement[] stackTraceElements) {
+        int userStackOffset = setting.getLocalStackOffset();
+        return userStackOffset + getMinStackOffset(stackTraceElements);
+    }
+
+    /**
+     * 获取最小的堆栈偏移值，获取线程的stack，基本算法为当第一次出现stack中元素的类型不为logController和其调用者时，
+     * 就认为当前位置为最小偏移值。
+     *
+     * @param trace the stack trace
+     * @return the stack offset
+     */
+    protected int getMinStackOffset(StackTraceElement[] trace) {
+        for (int i = MIN_STACK_OFFSET; i < trace.length; i++) {
+            StackTraceElement e = trace[i];
+            String name = e.getClassName();
+            if (!name.equals(thisClassName) && !callerClassNames.contains(name)) {
+                // 因为数组从0，开始所有要-1
+                return --i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 校正最终要输出的方法数目，不能比整个栈还长
+     */
+    protected int getFinalMethodCount(int localMethodCount, int stackOffset, int trackLength) {
+        int methodCount = localMethodCount;
+        if (methodCount + stackOffset > trackLength) {
+            methodCount = trackLength - stackOffset - 1;
+        }
+        return methodCount;
+    }
 }

@@ -53,7 +53,7 @@ public class SlogTest {
 
     @BeforeClass
     public static void init() {
-        Slog.init(new LogcatTree()).prefixTag("TestSlog");
+        Slog.init(new LogcatTree()).prefixTag("TestSlog").showThreadInfo(true);
 
         Slog.addObjectParser(new StudentParser());
         Logger.init("printTime").methodCount(1);
@@ -218,7 +218,7 @@ public class SlogTest {
         Log.i(tag, "simple mode test\n" + slogTime + loggerTime + viseLogTime + timberTime);
     }
 
-//    @Test
+    @Test
     public void loopPrintLogTest() {
         long startTime;
         long endTime;
@@ -226,7 +226,7 @@ public class SlogTest {
         String testStr = "this is a test string, so i will print the time to you, this is the log msg, good good day day up";
         // 默认设置测试1000
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Slog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -235,7 +235,7 @@ public class SlogTest {
         // 关闭线程信息测试
         Slog.getSetting().showThreadInfo(false);
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Slog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -244,7 +244,7 @@ public class SlogTest {
         // 关闭线程信息和调用堆栈信息测试
         Slog.getSetting().methodCount(0);
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Slog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -269,7 +269,6 @@ public class SlogTest {
 
         Slog.getSetting().simpleMode(false);
         Slog.t(tag).i(time1 + time2 + time3 + time4 + time5);
-
     }
 
     //    @Test
