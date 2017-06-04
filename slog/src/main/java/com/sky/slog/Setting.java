@@ -68,8 +68,9 @@ public class Setting {
         return methodOffset;
     }
 
-    public void methodOffset(int methodOffset) {
+    public Setting methodOffset(int methodOffset) {
         this.methodOffset = methodOffset;
+        return this;
     }
 
     @Override

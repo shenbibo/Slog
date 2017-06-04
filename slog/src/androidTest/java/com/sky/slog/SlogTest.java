@@ -43,7 +43,13 @@ public class SlogTest {
 
     @BeforeClass
     public static void init() {
-        Slog.init(new LogcatTree()).showThreadInfo(true).prefixTag("test");
+        Slog.init(new LogcatTree())
+            .showThreadInfo(true)
+            .prefixTag("test")
+            .logPriority(Slog.FULL)
+            .methodCount(2)
+            .methodOffset(1)
+            .simpleMode(false);
         Slog.addObjectParser(new StudentParser());
         Logger.init("printTime").methodCount(1);
         Timber.plant(new DebugTree());
@@ -53,6 +59,16 @@ public class SlogTest {
                .configAllowLog(true)
                .configLevel(Log.VERBOSE);
         ViseLog.plant(new com.vise.log.inner.LogcatTree());
+    }
+
+    @Test
+    public void normalTest(){
+        // 打印普通日志
+        Slog.d("sky debug");
+        Slog.i("sky info");
+
+        // 打印throwable
+        Slog.e(new Throwable(), "");
     }
 
     @Test
