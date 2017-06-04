@@ -2,6 +2,11 @@ package com.sky.slog;
 
 import com.sky.slog.parse.Parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.sky.slog.Slog.SlogImpl.SLOG;
+
 /**
  * 日志工具类
  * 使用本日志类必须先调用初始化方法{@link Slog#init(Tree)}
@@ -59,10 +64,6 @@ public final class Slog {
      * 默认日志TAG
      */
     public static final String DEFAULT_TAG = "Android";
-
-    private static LogAssembler logAssembler;
-    private static Setting setting;
-    private static TreeManager treeManager;
 
     /**
      * Log a verbose message with optional format args.
@@ -163,81 +164,68 @@ public final class Slog {
      * 才打印，其他的值无效
      */
     public static void log(int priority, String tag, Throwable t, String message, Object... args) {
-        logAssembler.log(priority, tag, t, message, args);
+        SLOG.log(priority, tag, t, message, args);
     }
 
     /**
      * 打印对象
      */
     public static void object(int priority, String tag, Object object) {
-        logAssembler.object(priority, tag, object);
+        SLOG.object(priority, tag, object);
     }
 
     public static void json(String json) {
-        logAssembler.json(json);
+        SLOG.json(json);
     }
 
     public static void xml(String xml) {
-        logAssembler.xml(xml);
+        SLOG.xml(xml);
     }
 
     public static Setting init(Tree tree) {
-        if (setting == null) {
-            setting = new Setting();
-
-            LogController logController = LogFactory.createLogManager();
-
-            logAssembler = LogFactory.createLogController();
-            logAssembler.init(Slog.class, setting, logController);
-
-            treeManager = logController;
-            treeManager.plantTree(tree);
-
-            ParseObject.init();
-        }
-        return setting;
+        return SLOG.init(tree);
     }
 
-    public static LogAssembler t(String tag) {
-        return logAssembler.t(tag);
+    public static SlogImpl t(String tag) {
+        return SLOG.t(tag);
     }
 
-    public static LogAssembler m(int methodCount) {
-        return logAssembler.m(methodCount);
+    public static SlogImpl m(int methodCount) {
+        return SLOG.m(methodCount);
     }
 
-    public static LogAssembler o(int methodOffset) {
-        return logAssembler.o(methodOffset);
+    public static SlogImpl o(int methodOffset) {
+        return SLOG.o(methodOffset);
     }
 
-    public static LogAssembler s(boolean simpleMode) {
-        return logAssembler.s(simpleMode);
+    public static SlogImpl s(boolean simpleMode) {
+        return SLOG.s(simpleMode);
     }
 
-    public static LogAssembler th(boolean showThreadInfo) {
-        return logAssembler.th(showThreadInfo);
+    public static SlogImpl th(boolean showThreadInfo) {
+        return SLOG.th(showThreadInfo);
     }
 
     /**
      * 添加一个新的日志打印的适配器到日志打印器中
      */
     public static void plantTree(Tree tree) {
-        treeManager.plantTree(tree);
+        SLOG.treeManager.plantTree(tree);
     }
 
     public static void removeTree(Tree tree) {
-        treeManager.removeTree(tree);
+        SLOG.treeManager.removeTree(tree);
     }
 
     public static void clearTrees() {
-        treeManager.clearTrees();
+        SLOG.treeManager.clearTrees();
     }
 
     /**
      * 获取全局日志配置， 可以通过该对象设置全局配置参数
      */
     public static Setting getSetting() {
-        return setting;
+        return SLOG.setting;
     }
 
     /**
@@ -255,5 +243,130 @@ public final class Slog {
 
     public static void removeObjectParser(Class<? extends Parser> parserClass) {
         ParseObject.removeObjectParser(parserClass);
+    }
+
+    public static class SlogImpl {
+        private LogAssembler logAssembler;
+        Setting setting;
+        TreeManager treeManager;
+
+        static final SlogImpl SLOG = new SlogImpl();
+
+        private SlogImpl() {
+        }
+
+        public void v(String message, Object... args) {
+            log(VERBOSE, null, null, message, args);
+        }
+
+        public void d(String message, Object... args) {
+            log(DEBUG, null, null, message, args);
+        }
+
+        public void dO(Object object) {
+            object(DEBUG, null, object);
+        }
+
+        public void i(String message, Object... args) {
+            log(INFO, null, null, message, args);
+        }
+
+        public void iO(Object object) {
+            object(INFO, null, object);
+        }
+
+        public void w(String message, Object... args) {
+            log(WARN, null, null, message, args);
+        }
+
+        public void w(Throwable t, String message, Object... args) {
+            log(WARN, null, t, message, args);
+        }
+
+        public void w(Throwable t) {
+            log(WARN, null, t, "");
+        }
+
+        public void e(String message, Object... args) {
+            log(ERROR, null, null, message, args);
+        }
+
+        public void e(Throwable t, String message, Object... args) {
+            log(ERROR, null, t, message, args);
+        }
+
+        public void e(Throwable t) {
+            log(ERROR, null, t, "");
+        }
+
+        public void wtf(String message, Object... args) {
+            log(ASSERT, null, null, message, args);
+        }
+
+        public void wtf(Throwable t, String message, Object... args) {
+            log(ASSERT, null, t, message, args);
+        }
+
+        public void log(int priority, String tag, Throwable t, String message, Object... args) {
+            logAssembler.log(priority, tag, t, message, args);
+        }
+
+        public void object(int priority, String tag, Object object) {
+            logAssembler.object(priority, tag, object);
+        }
+
+        public void json(String json) {
+            logAssembler.json(json);
+        }
+
+        public void xml(String xml) {
+            logAssembler.xml(xml);
+        }
+
+        public SlogImpl t(String tag) {
+            setting.t(tag);
+            return this;
+        }
+
+        public SlogImpl m(int methodCount) {
+            setting.m(methodCount);
+            return this;
+        }
+
+        public SlogImpl o(int methodOffset) {
+//            setting.o(methodOffset);
+            logAssembler.o(methodOffset);
+            return this;
+        }
+
+        public SlogImpl s(boolean simpleMode) {
+            setting.s(simpleMode);
+            return this;
+        }
+
+        public SlogImpl th(boolean showThreadInfo) {
+            setting.th(showThreadInfo);
+            return this;
+        }
+
+        Setting init(Tree tree) {
+            if (setting == null) {
+                setting = new Setting();
+
+                LogController logController = LogFactory.createLogManager();
+
+                logAssembler = LogFactory.createLogController();
+                List<String> callerClassName = new ArrayList<>();
+                callerClassName.add(Slog.class.getName());
+                callerClassName.add(this.getClass().getName());
+                logAssembler.init(callerClassName, setting, logController);
+
+                treeManager = logController;
+                treeManager.plantTree(tree);
+
+                ParseObject.init();
+            }
+            return setting;
+        }
     }
 }

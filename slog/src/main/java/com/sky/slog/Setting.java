@@ -73,6 +73,104 @@ public class Setting {
         return this;
     }
 
+    private ThreadLocal<String> threadLocalTag = new ThreadLocal<>();
+    private ThreadLocal<Integer> threadLocalMethodCount = new ThreadLocal<>();
+    private ThreadLocal<Boolean> threadLocalSimpleMode = new ThreadLocal<>();
+    private ThreadLocal<Boolean> threadLocalShowThreadInfo = new ThreadLocal<>();
+    private ThreadLocal<Integer> threadLocalMethodOffset = new ThreadLocal<>();
+
+    Setting t(String tag) {
+        if (tag != null) {
+            threadLocalTag.set(tag);
+        }
+        return this;
+    }
+
+    Setting m(Integer methodCount) {
+        if (methodCount != null) {
+            threadLocalMethodCount.set(methodCount);
+        }
+        return this;
+    }
+
+    Setting s(Boolean simpleMode) {
+        if (simpleMode != null) {
+            threadLocalSimpleMode.set(simpleMode);
+        }
+        return this;
+    }
+
+    Setting th(Boolean showThreadInfo) {
+        if (showThreadInfo != null) {
+            threadLocalShowThreadInfo.set(showThreadInfo);
+        }
+        return this;
+    }
+
+    Setting o(Integer methodOffset) {
+        if (methodOffset != null) {
+            threadLocalMethodOffset.set(methodOffset);
+        }
+        return this;
+    }
+
+    String getLocalTag() {
+        String localTag = threadLocalTag.get();
+        if (localTag != null) {
+            threadLocalTag.remove();
+            localTag = createCompoundTag(localTag);
+        } else {
+            localTag = prefixTag;
+        }
+
+        return localTag;
+    }
+
+    int getLocalMethodCount() {
+        Integer localMethodCount = threadLocalMethodCount.get();
+        if (localMethodCount != null) {
+            threadLocalMethodCount.remove();
+        } else {
+            localMethodCount = methodCount;
+        }
+        return localMethodCount;
+    }
+
+    int getLocalStackOffset() {
+        Integer localMethodOffset = threadLocalMethodOffset.get();
+        if (localMethodOffset != null) {
+            this.threadLocalMethodOffset.remove();
+        } else {
+            localMethodOffset = methodOffset;
+        }
+
+        return localMethodOffset;
+    }
+
+    boolean isLocalSimpleMode() {
+        Boolean localSimpleMode = threadLocalSimpleMode.get();
+        if (localSimpleMode != null) {
+            this.threadLocalSimpleMode.remove();
+        } else {
+            localSimpleMode = simpleMode;
+        }
+        return localSimpleMode;
+    }
+
+    boolean isLocalShowThreadInfo() {
+        Boolean localShowThreadInfo = threadLocalShowThreadInfo.get();
+        if (localShowThreadInfo != null) {
+            threadLocalShowThreadInfo.remove();
+        } else {
+            localShowThreadInfo = showThreadInfo;
+        }
+        return localShowThreadInfo;
+    }
+
+    String createCompoundTag(String srcTag) {
+        return prefixTag + "-" + srcTag;
+    }
+
     @Override
     public String toString() {
         return "Setting{" +

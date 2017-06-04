@@ -117,7 +117,7 @@ public class SlogTest {
     public void logWithMethodOffset() {
         Slog.o(1).i("1 offset");
         Slog.o(2).i("2 offset");
-        Slog.o(100).i("100 offset");
+        Slog.o(300).i("100 offset");
     }
 
     /**

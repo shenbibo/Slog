@@ -19,14 +19,9 @@ import static com.sky.slog.LogConstant.LINE_SEPARATOR;
 import static com.sky.slog.LogConstant.MIDDLE_BORDER;
 import static com.sky.slog.LogConstant.OBJECT_NULL_STRING;
 import static com.sky.slog.LogConstant.TOP_BORDER;
-import static com.sky.slog.Slog.ASSERT;
 import static com.sky.slog.Slog.DEBUG;
-import static com.sky.slog.Slog.ERROR;
 import static com.sky.slog.Slog.FULL;
-import static com.sky.slog.Slog.INFO;
 import static com.sky.slog.Slog.NONE;
-import static com.sky.slog.Slog.VERBOSE;
-import static com.sky.slog.Slog.WARN;
 
 /**
  * [日志中间处理转发类]
@@ -46,69 +41,64 @@ class LogAssemblerImpl extends LogAssembler {
     private final Object NULL_OBJECT = new Object();
 
     private Setting setting;
-    private Class<?> callerClass;
+    private List<String> callerClassNames;
     private LogDispatcher dispatcher;
+    private String thisClassName = getClass().getName();
 
-    private ThreadLocal<String> localTag = new ThreadLocal<>();
-    private ThreadLocal<Integer> localMethodCount = new ThreadLocal<>();
-    private ThreadLocal<Boolean> localSimpleMode = new ThreadLocal<>();
-    private ThreadLocal<Boolean> localShowThreadInfo = new ThreadLocal<>();
-    private ThreadLocal<Integer> localMethodOffset = new ThreadLocal<>();
-
-    @Override
-    public void v(String msg, @Nullable Object... args) {
-        log(VERBOSE, null, null, msg, args);
-    }
-
-    @Override
-    public void d(String msg, @Nullable Object... args) {
-        log(DEBUG, null, null, msg, args);
-    }
-
-    @Override
-    public void dO(Object object) {
-        object(DEBUG, null, object);
-    }
-
-    @Override
-    public void i(String msg, @Nullable Object... args) {
-        log(INFO, null, null, msg, args);
-    }
-
-    @Override
-    public void iO(Object object) {
-        object(INFO, null, object);
-    }
-
-    @Override
-    public void w(String msg, @Nullable Object... args) {
-        log(WARN, null, null, msg, args);
-    }
-
-    @Override
-    public void w(Throwable t, String msg, @Nullable Object... args) {
-        log(WARN, null, t, msg, args);
-    }
-
-    @Override
-    public void e(String msg, @Nullable Object... args) {
-        log(ERROR, null, null, msg, args);
-    }
-
-    @Override
-    public void e(Throwable t, String msg, @Nullable Object... args) {
-        log(ERROR, null, t, msg, args);
-    }
-
-    @Override
-    public void wtf(String msg, @Nullable Object... args) {
-        log(ASSERT, null, null, msg, args);
-    }
-
-    @Override
-    public void wtf(Throwable t, String msg, @Nullable Object... args) {
-        log(ASSERT, null, t, msg, args);
-    }
+//    @Override
+//    public void v(String msg, @Nullable Object... args) {
+//        log(VERBOSE, null, null, msg, args);
+//    }
+//
+//    @Override
+//    public void d(String msg, @Nullable Object... args) {
+//        log(DEBUG, null, null, msg, args);
+//    }
+//
+//    @Override
+//    public void dO(Object object) {
+//        object(DEBUG, null, object);
+//    }
+//
+//    @Override
+//    public void i(String msg, @Nullable Object... args) {
+//        log(INFO, null, null, msg, args);
+//    }
+//
+//    @Override
+//    public void iO(Object object) {
+//        object(INFO, null, object);
+//    }
+//
+//    @Override
+//    public void w(String msg, @Nullable Object... args) {
+//        log(WARN, null, null, msg, args);
+//    }
+//
+//    @Override
+//    public void w(Throwable t, String msg, @Nullable Object... args) {
+//        log(WARN, null, t, msg, args);
+//    }
+//
+//    @Override
+//    public void e(String msg, @Nullable Object... args) {
+//        log(ERROR, null, null, msg, args);
+//    }
+//
+//    @Override
+//    public void e(Throwable t, String msg, @Nullable Object... args) {
+//        log(ERROR, null, t, msg, args);
+//    }
+//
+//    @Override
+//    public void wtf(String msg, @Nullable Object... args) {
+//        log(ASSERT, null, null, msg, args);
+//    }
+//
+//    @Override
+//    public void wtf(Throwable t, String msg, @Nullable Object... args) {
+//        log(ASSERT, null, t, msg, args);
+//    }
 
     @Override
     public void log(int priority, @Nullable String tag, @Nullable Throwable t, @Nullable String msg, @Nullable Object... args) {
@@ -142,49 +132,49 @@ class LogAssemblerImpl extends LogAssembler {
         log(DEBUG, null, null, covertXml(xml));
     }
 
-    @Override
-    public LogAssembler t(String tag) {
-        if (tag != null) {
-            localTag.set(tag);
-        }
-        return this;
-    }
+//    @Override
+//    public LogAssembler t(String tag) {
+//        if (tag != null) {
+//            localTag.set(tag);
+//        }
+//        return this;
+//    }
+//
+//    @Override
+//    public LogAssembler m(Integer methodCount) {
+//        if (methodCount != null) {
+//            localMethodCount.set(methodCount);
+//        }
+//        return this;
+//    }
+//
+//    @Override
+//    public LogAssembler s(Boolean simpleMode) {
+//        if (simpleMode != null) {
+//            localSimpleMode.set(simpleMode);
+//        }
+//        return this;
+//    }
+//
+//    @Override
+//    public LogAssembler th(Boolean showThreadInfo) {
+//        if (showThreadInfo != null) {
+//            localShowThreadInfo.set(showThreadInfo);
+//        }
+//        return this;
+//    }
+//
+//    @Override
+//    public LogAssembler o(Integer methodOffset) {
+//        if (methodOffset != null) {
+//            localMethodOffset.set(methodOffset);
+//        }
+//        return this;
+//    }
 
     @Override
-    public LogAssembler m(Integer methodCount) {
-        if (methodCount != null) {
-            localMethodCount.set(methodCount);
-        }
-        return this;
-    }
-
-    @Override
-    public LogAssembler s(Boolean simpleMode) {
-        if (simpleMode != null) {
-            localSimpleMode.set(simpleMode);
-        }
-        return this;
-    }
-
-    @Override
-    public LogAssembler th(Boolean showThreadInfo) {
-        if (showThreadInfo != null) {
-            localShowThreadInfo.set(showThreadInfo);
-        }
-        return this;
-    }
-
-    @Override
-    public LogAssembler o(Integer methodOffset) {
-        if (methodOffset != null) {
-            localMethodOffset.set(methodOffset);
-        }
-        return this;
-    }
-
-    @Override
-    void init(@NonNull Class<?> callerClass, @NonNull Setting logSetting, @NonNull LogDispatcher logDispatcher) {
-        this.callerClass = callerClass;
+    void init(@NonNull List<String> callerClassName, @NonNull Setting logSetting, @NonNull LogDispatcher logDispatcher) {
+        this.callerClassNames = callerClassName;
         setting = logSetting;
         dispatcher = logDispatcher;
     }
@@ -194,9 +184,9 @@ class LogAssemblerImpl extends LogAssembler {
             return;
         }
 
-        String finalTag = tag != null ? createCompoundTag(tag) : getTag();
+        String finalTag = tag != null ? setting.createCompoundTag(tag) : setting.getLocalTag();
         // 简单模式不组装消息直接返回
-        if (isSimpleMode()) {
+        if (setting.isLocalSimpleMode()) {
             logSimpleMode(priority, finalTag, t, originalObject, args);
             return;
         }
@@ -211,7 +201,7 @@ class LogAssemblerImpl extends LogAssembler {
     }
 
     private void logCompoundMode(int priority, String tag, Throwable t, Object originalObject, Object... args) {
-        int methodCount = getMethodCount();
+        int methodCount = setting.getLocalMethodCount();
         // 初始化时指定容量，避免发生拷贝
         ArrayList<String> compoundMessages = new ArrayList<>(12 + (int) (methodCount / 0.75));
         logTopBorder(compoundMessages);
@@ -261,14 +251,14 @@ class LogAssemblerImpl extends LogAssembler {
         // 获取当前线程信息和stack，组装线程数据
         Thread curThread = Thread.currentThread();
         StackTraceElement[] trace = curThread.getStackTrace();
-        if (isShowThreadInfo()) {
+        if (setting.isLocalShowThreadInfo()) {
             String threadInfo = createThreadInfo(curThread);
             messagesList.add(getLineCompoundStr(threadInfo));
             logDivider(messagesList);
         }
 
         // 校正最终要输出的方法数目，不能比整个栈还长
-        int stackOffset = getStackOffset(trace);
+        int stackOffset = getFinalStackOffset(trace);
         if (methodCount + stackOffset > trace.length) {
             methodCount = trace.length - stackOffset - 1;
         }
@@ -326,58 +316,70 @@ class LogAssemblerImpl extends LogAssembler {
         }
     }
 
-    private String getTag() {
-        String tag = localTag.get();
-        if (tag != null) {
-            localTag.remove();
-            tag = createCompoundTag(tag);
-        } else {
-            tag = setting.getPrefixTag();
-        }
+//    private String getTag() {
+//        String tag = localTag.get();
+//        if (tag != null) {
+//            localTag.remove();
+//            tag = createCompoundTag(tag);
+//        } else {
+//            tag = setting.getPrefixTag();
+//        }
+//
+//        return tag;
+//    }
+//
+//    private int getMethodCount() {
+//        Integer count = localMethodCount.get();
+//        if (count != null) {
+//            localMethodCount.remove();
+//        } else {
+//            count = setting.getMethodCount();
+//        }
+//        return count;
+//    }
+//
+//    private int getStackOffset(StackTraceElement[] stackTraceElements) {
+//        Integer userSetOffset = localMethodOffset.get();
+//        if (userSetOffset != null) {
+//            localMethodOffset.remove();
+//        } else {
+//            userSetOffset = setting.getMethodOffset();
+//        }
+//
+//        return userSetOffset + getMinStackOffset(stackTraceElements);
+//    }
 
-        return tag;
+    private int getFinalStackOffset(StackTraceElement[] stackTraceElements) {
+        int userStackOffset = setting.getLocalStackOffset();
+//        // 对方法偏移进行校验，如果小于0，则取0，如果大于最大长度则取栈的长度
+//        if (userStackOffset < 0) {
+//            userStackOffset = 0;
+//        }
+//        if (userStackOffset > stackTraceElements.length) {
+//            userStackOffset = stackTraceElements.length;
+//        }
+        return userStackOffset + getMinStackOffset(stackTraceElements);
     }
 
-    private int getMethodCount() {
-        Integer count = localMethodCount.get();
-        if (count != null) {
-            localMethodCount.remove();
-        } else {
-            count = setting.getMethodCount();
-        }
-        return count;
-    }
-
-    private int getStackOffset(StackTraceElement[] stackTraceElements) {
-        Integer userSetOffset = localMethodOffset.get();
-        if (userSetOffset != null) {
-            localMethodOffset.remove();
-        } else {
-            userSetOffset = setting.getMethodOffset();
-        }
-
-        return userSetOffset + getMinStackOffset(stackTraceElements);
-    }
-
-    private boolean isSimpleMode() {
-        Boolean simpleMode = localSimpleMode.get();
-        if (simpleMode != null) {
-            localSimpleMode.remove();
-        } else {
-            simpleMode = setting.isSimpleMode();
-        }
-        return simpleMode;
-    }
-
-    private boolean isShowThreadInfo() {
-        Boolean showThreadInfo = localShowThreadInfo.get();
-        if (showThreadInfo != null) {
-            localShowThreadInfo.remove();
-        } else {
-            showThreadInfo = setting.isShowThreadInfo();
-        }
-        return showThreadInfo;
-    }
+//    private boolean isSimpleMode() {
+//        Boolean simpleMode = localSimpleMode.get();
+//        if (simpleMode != null) {
+//            localSimpleMode.remove();
+//        } else {
+//            simpleMode = setting.isSimpleMode();
+//        }
+//        return simpleMode;
+//    }
+//
+//    private boolean isShowThreadInfo() {
+//        Boolean showThreadInfo = localShowThreadInfo.get();
+//        if (showThreadInfo != null) {
+//            localShowThreadInfo.remove();
+//        } else {
+//            showThreadInfo = setting.isShowThreadInfo();
+//        }
+//        return showThreadInfo;
+//    }
 
     /**
      * 获取最小的堆栈偏移值，获取线程的stack，基本算法为当第一次出现stack中元素的类型不为logController和其调用者时，
@@ -390,7 +392,7 @@ class LogAssemblerImpl extends LogAssembler {
         for (int i = MIN_STACK_OFFSET; i < trace.length; i++) {
             StackTraceElement e = trace[i];
             String name = e.getClassName();
-            if (!name.equals(this.getClass().getName()) && !name.equals(callerClass.getName())) {
+            if (!name.equals(thisClassName) && !callerClassNames.contains(name)) {
                 // 因为数组从0，开始所有要-1
                 return --i;
             }
