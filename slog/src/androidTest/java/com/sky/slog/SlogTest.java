@@ -41,8 +41,7 @@ public class SlogTest {
                             new int[]{1, 2, 3, 4, 5, 6},
                             new int[]{7878, 6565, 84155, 7542, 0}}}};
 
-    @BeforeClass
-    public static void init() {
+    private static void cofigSlog(){
         Slog.init(new LogcatTree())
             .showThreadInfo(true)
             .prefixTag("test")
@@ -50,6 +49,12 @@ public class SlogTest {
             .methodCount(2)
             .methodOffset(1)
             .simpleMode(false);
+    }
+
+    @BeforeClass
+    public static void init() {
+        Slog.init(new LogcatTree());
+
         Slog.addObjectParser(new StudentParser());
         Logger.init("printTime").methodCount(1);
         Timber.plant(new DebugTree());
