@@ -45,61 +45,6 @@ class LogAssemblerImpl extends LogAssembler {
     private LogDispatcher dispatcher;
     private String thisClassName = getClass().getName();
 
-//    @Override
-//    public void v(String msg, @Nullable Object... args) {
-//        log(VERBOSE, null, null, msg, args);
-//    }
-//
-//    @Override
-//    public void d(String msg, @Nullable Object... args) {
-//        log(DEBUG, null, null, msg, args);
-//    }
-//
-//    @Override
-//    public void dO(Object object) {
-//        object(DEBUG, null, object);
-//    }
-//
-//    @Override
-//    public void i(String msg, @Nullable Object... args) {
-//        log(INFO, null, null, msg, args);
-//    }
-//
-//    @Override
-//    public void iO(Object object) {
-//        object(INFO, null, object);
-//    }
-//
-//    @Override
-//    public void w(String msg, @Nullable Object... args) {
-//        log(WARN, null, null, msg, args);
-//    }
-//
-//    @Override
-//    public void w(Throwable t, String msg, @Nullable Object... args) {
-//        log(WARN, null, t, msg, args);
-//    }
-//
-//    @Override
-//    public void e(String msg, @Nullable Object... args) {
-//        log(ERROR, null, null, msg, args);
-//    }
-//
-//    @Override
-//    public void e(Throwable t, String msg, @Nullable Object... args) {
-//        log(ERROR, null, t, msg, args);
-//    }
-//
-//    @Override
-//    public void wtf(String msg, @Nullable Object... args) {
-//        log(ASSERT, null, null, msg, args);
-//    }
-//
-//    @Override
-//    public void wtf(Throwable t, String msg, @Nullable Object... args) {
-//        log(ASSERT, null, t, msg, args);
-//    }
-
     @Override
     public void log(int priority, @Nullable String tag, @Nullable Throwable t, @Nullable String msg, @Nullable Object... args) {
         Object msgObject = msg;
@@ -131,46 +76,6 @@ class LogAssemblerImpl extends LogAssembler {
     public void xml(String xml) {
         log(DEBUG, null, null, covertXml(xml));
     }
-
-//    @Override
-//    public LogAssembler t(String tag) {
-//        if (tag != null) {
-//            localTag.set(tag);
-//        }
-//        return this;
-//    }
-//
-//    @Override
-//    public LogAssembler m(Integer methodCount) {
-//        if (methodCount != null) {
-//            localMethodCount.set(methodCount);
-//        }
-//        return this;
-//    }
-//
-//    @Override
-//    public LogAssembler s(Boolean simpleMode) {
-//        if (simpleMode != null) {
-//            localSimpleMode.set(simpleMode);
-//        }
-//        return this;
-//    }
-//
-//    @Override
-//    public LogAssembler th(Boolean showThreadInfo) {
-//        if (showThreadInfo != null) {
-//            localShowThreadInfo.set(showThreadInfo);
-//        }
-//        return this;
-//    }
-//
-//    @Override
-//    public LogAssembler o(Integer methodOffset) {
-//        if (methodOffset != null) {
-//            localMethodOffset.set(methodOffset);
-//        }
-//        return this;
-//    }
 
     @Override
     void init(@NonNull List<String> callerClassName, @NonNull Setting logSetting, @NonNull LogDispatcher logDispatcher) {
@@ -316,70 +221,10 @@ class LogAssemblerImpl extends LogAssembler {
         }
     }
 
-//    private String getTag() {
-//        String tag = localTag.get();
-//        if (tag != null) {
-//            localTag.remove();
-//            tag = createCompoundTag(tag);
-//        } else {
-//            tag = setting.getPrefixTag();
-//        }
-//
-//        return tag;
-//    }
-//
-//    private int getMethodCount() {
-//        Integer count = localMethodCount.get();
-//        if (count != null) {
-//            localMethodCount.remove();
-//        } else {
-//            count = setting.getMethodCount();
-//        }
-//        return count;
-//    }
-//
-//    private int getStackOffset(StackTraceElement[] stackTraceElements) {
-//        Integer userSetOffset = localMethodOffset.get();
-//        if (userSetOffset != null) {
-//            localMethodOffset.remove();
-//        } else {
-//            userSetOffset = setting.getMethodOffset();
-//        }
-//
-//        return userSetOffset + getMinStackOffset(stackTraceElements);
-//    }
-
     private int getFinalStackOffset(StackTraceElement[] stackTraceElements) {
         int userStackOffset = setting.getLocalStackOffset();
-//        // 对方法偏移进行校验，如果小于0，则取0，如果大于最大长度则取栈的长度
-//        if (userStackOffset < 0) {
-//            userStackOffset = 0;
-//        }
-//        if (userStackOffset > stackTraceElements.length) {
-//            userStackOffset = stackTraceElements.length;
-//        }
         return userStackOffset + getMinStackOffset(stackTraceElements);
     }
-
-//    private boolean isSimpleMode() {
-//        Boolean simpleMode = localSimpleMode.get();
-//        if (simpleMode != null) {
-//            localSimpleMode.remove();
-//        } else {
-//            simpleMode = setting.isSimpleMode();
-//        }
-//        return simpleMode;
-//    }
-//
-//    private boolean isShowThreadInfo() {
-//        Boolean showThreadInfo = localShowThreadInfo.get();
-//        if (showThreadInfo != null) {
-//            localShowThreadInfo.remove();
-//        } else {
-//            showThreadInfo = setting.isShowThreadInfo();
-//        }
-//        return showThreadInfo;
-//    }
 
     /**
      * 获取最小的堆栈偏移值，获取线程的stack，基本算法为当第一次出现stack中元素的类型不为logController和其调用者时，
@@ -398,10 +243,6 @@ class LogAssemblerImpl extends LogAssembler {
             }
         }
         return -1;
-    }
-
-    private String createCompoundTag(String srcTag) {
-        return setting.getPrefixTag() + "-" + srcTag;
     }
 
     private String getLineCompoundStr(String line) {

@@ -334,8 +334,7 @@ public final class Slog {
         }
 
         public SlogImpl o(int methodOffset) {
-//            setting.o(methodOffset);
-            logAssembler.o(methodOffset);
+            setting.o(methodOffset);
             return this;
         }
 

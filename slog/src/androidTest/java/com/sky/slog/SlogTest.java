@@ -53,7 +53,7 @@ public class SlogTest {
 
     @BeforeClass
     public static void init() {
-        Slog.init(new LogcatTree());
+        Slog.init(new LogcatTree()).prefixTag("TestSlog");
 
         Slog.addObjectParser(new StudentParser());
         Logger.init("printTime").methodCount(1);
@@ -125,7 +125,7 @@ public class SlogTest {
      * 1000条日志下， 表现从好到坏 Logger > Slog > ViseLog
      * 10000条下，  表现从好到坏  Slog > Logger > ViseLog
      */
-    @Test
+//    @Test
     public void formatLogOutputTest() {
         long startTime;
         long endTime;
@@ -173,7 +173,7 @@ public class SlogTest {
      * 10000条下， Slog > Timber > Logger > ViseLog
      * 1000条下，
      */
-    @Test
+//    @Test
     public void simpleModeTest() {
         long startTime;
         long endTime;
@@ -218,7 +218,7 @@ public class SlogTest {
         Log.i(tag, "simple mode test\n" + slogTime + loggerTime + viseLogTime + timberTime);
     }
 
-    @Test
+//    @Test
     public void loopPrintLogTest() {
         long startTime;
         long endTime;
