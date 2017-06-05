@@ -72,8 +72,11 @@ public class SlogTest {
         Slog.d("sky debug");
         Slog.i("sky info");
 
+        // 打印格式化字符串
+        Slog.d("this is a format string log, str1 = %s, int value2 = %d, boolean3 = %b", "string1", 2, true);
+
         // 打印throwable
-        Slog.e(new Throwable(), "");
+        Slog.e(new Throwable());
     }
 
     @Test
