@@ -82,7 +82,7 @@ public final class Slog {
     /**
      * 打印对象如list,map,set array
      */
-    public static void dO(Object object) {
+    public static void d(Object object) {
         object(DEBUG, null, object);
     }
 
@@ -96,7 +96,7 @@ public final class Slog {
     /**
      * 打印对象如list,map,set array等
      */
-    public static void iO(Object object) {
+    public static void i(Object object) {
         object(INFO, null, object);
     }
 
@@ -182,10 +182,6 @@ public final class Slog {
         SLOG.xml(xml);
     }
 
-    public static Setting init(Tree tree) {
-        return SLOG.init(tree);
-    }
-
     public static SlogImpl t(String tag) {
         return SLOG.t(tag);
     }
@@ -204,6 +200,10 @@ public final class Slog {
 
     public static SlogImpl th(boolean showThreadInfo) {
         return SLOG.th(showThreadInfo);
+    }
+
+    public static Setting init(Tree tree) {
+        return SLOG.init(tree);
     }
 
     /**
@@ -263,7 +263,7 @@ public final class Slog {
             log(DEBUG, null, null, message, args);
         }
 
-        public void dO(Object object) {
+        public void d(Object object) {
             object(DEBUG, null, object);
         }
 
@@ -271,7 +271,7 @@ public final class Slog {
             log(INFO, null, null, message, args);
         }
 
-        public void iO(Object object) {
+        public void i(Object object) {
             object(INFO, null, object);
         }
 

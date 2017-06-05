@@ -122,10 +122,10 @@ public class SlogTest {
 
     /**
      * 测试三个开源工具格式化输出时的性能，结论：
-     * 1000条日志下， 表现从好到坏 Logger > Slog > ViseLog
+     * 1000条日志下， 表现从好到坏 Logger >= Slog（和Logger十分接近） > ViseLog
      * 10000条下，  表现从好到坏  Slog > Logger > ViseLog
      */
-//    @Test
+    @Test
     public void formatLogOutputTest() {
         long startTime;
         long endTime;
@@ -136,7 +136,7 @@ public class SlogTest {
         Slog.getSetting().simpleMode(false).methodCount(1).showThreadInfo(true);
         Log.i(tag, "start for Slog test");
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Slog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -147,7 +147,7 @@ public class SlogTest {
          //logger 工具在连续打印大量的日志时，可能会出现读错误
          //logger
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Logger.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -158,7 +158,7 @@ public class SlogTest {
         Log.i(tag, "start for ViseLog test");
 //        // ViseLog
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             ViseLog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -169,26 +169,17 @@ public class SlogTest {
 
     /**
      * 开源日志工具简单模式下性能，因为三个工具对简单模式的定义都不一样，所以测试出来的数据差别会非常大
-     * 结论：
+     * 结论，越靠左性能越好：
      * 10000条下， Slog > Timber > Logger > ViseLog
-     * 1000条下，
+     * 1000条下，Timber > Slog > Logger > ViseLog
      */
-//    @Test
+    @Test
     public void simpleModeTest() {
         long startTime;
         long endTime;
         String tag = "printTime";
         String testStr = "this is a test string, so i will print the time to you, this is the log msg, good good day day up";
-        // 默认设置测试10000
-        Slog.getSetting().prefixTag(tag);
-        Slog.getSetting().simpleMode(true);
-        startTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
-            Slog.i(testStr);
-        }
-        endTime = System.currentTimeMillis();
-        String slogTime = "slog time = " + (endTime - startTime) + '\n';
-
+        // 默认设置测试1000
         // logger
         startTime = System.currentTimeMillis();
         Logger.t("printTime").getSettings().methodCount(0).hideThreadInfo();
@@ -207,7 +198,7 @@ public class SlogTest {
         endTime = System.currentTimeMillis();
         String viseLogTime = "ViseLog time = " + (endTime - startTime) + '\n';
 
-        // time test
+        // timer test
         startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             Timber.tag(tag).i(testStr);
@@ -215,7 +206,24 @@ public class SlogTest {
         endTime = System.currentTimeMillis();
         String timberTime = "timber  time = " + (endTime - startTime) + '\n';
 
-        Log.i(tag, "simple mode test\n" + slogTime + loggerTime + viseLogTime + timberTime);
+        Slog.getSetting().prefixTag(tag);
+        Slog.getSetting().simpleMode(true);
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            Slog.i(testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String slogTime = "slog time = " + (endTime - startTime) + '\n';
+
+        // logcat print
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            Log.i(tag, testStr);
+        }
+        endTime = System.currentTimeMillis();
+        String time5 = "logcat print time = " + (endTime - startTime);
+
+        Slog.t(tag).i("simple mode test\n" + slogTime + loggerTime + viseLogTime + timberTime + time5);
     }
 
     @Test
@@ -253,7 +261,7 @@ public class SlogTest {
         // simple mode test
         Slog.getSetting().simpleMode(true);
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Slog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -261,7 +269,7 @@ public class SlogTest {
 
         // logcat print
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Log.i(tag, testStr);
         }
         endTime = System.currentTimeMillis();
@@ -393,19 +401,19 @@ public class SlogTest {
 
     @Test
     public void primitiveValueTest() {
-        Slog.dO(1);
-        Slog.dO(true);
-        Slog.dO('S');
-        Slog.dO(1.723);
-        Slog.dO(3.14f);
-        Slog.dO((byte) 8);
-        Slog.dO((short) 244);
-        Slog.dO(12345678912L);
+        Slog.d(1);
+        Slog.d(true);
+        Slog.d('S');
+        Slog.d(1.723);
+        Slog.d(3.14f);
+        Slog.d((byte) 8);
+        Slog.d((short) 244);
+        Slog.d(12345678912L);
     }
 
     @Test
     public void nullObject() {
-        Slog.dO(null);
+        Slog.d(null);
     }
 
     @Test
@@ -418,24 +426,24 @@ public class SlogTest {
     public void object() {
         String[] name = {"sga", "gsadgsa", "sgdsfhds"};
         Slog.i("array test");
-        Slog.dO(name);
+        Slog.d(name);
 
         String[] name2 = {"wwt", "wetgety", "reyertu"};
         Slog.i("list test");
-        Slog.dO(Arrays.asList(name2));
+        Slog.d(Arrays.asList(name2));
 
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < name.length; i++) {
             map.put(name[i], name2[i]);
         }
         Slog.i("map test");
-        Slog.dO(map);
+        Slog.d(map);
 
         String[] name3 = {"wggsg", "hketydfhdsh", "7887reyertu"};
         Set<String> set = new HashSet<>();
         set.addAll(Arrays.asList(name3));
         Slog.i("set test");
-        Slog.dO(set);
+        Slog.d(set);
 
     }
 
@@ -463,31 +471,31 @@ public class SlogTest {
             objectArray[i] = i;
         }
 
-        Slog.iO(objectArray);
+        Slog.i(objectArray);
 
         // 打印String
         String[] stringArray = new String[1024];
         for (int i = 1024; i < stringArray.length + 1024; i++) {
             stringArray[i - 1024] = "" + i;
         }
-        Slog.iO(stringArray);
+        Slog.i(stringArray);
 
         // 打印int数组
         int[] intArray = new int[1024];
         for (int i = 2048; i < intArray.length + 2048; i++) {
             intArray[i - 2048] = i;
         }
-        Slog.iO(intArray);
+        Slog.i(intArray);
 
         // 打印多维数组
-        Slog.iO(objectsArray);
+        Slog.i(objectsArray);
     }
 
     @Test
     public void listTest() {
         // empty list test
         List<Object> arrayList = new ArrayList<>();
-        Slog.dO(arrayList);
+        Slog.d(arrayList);
 
         // string list
         List<String> stringList = new ArrayList<>();
@@ -495,7 +503,7 @@ public class SlogTest {
         stringList.add("7845");
         stringList.add("klslslg");
         stringList.add("skjweot");
-        Slog.dO(stringList);
+        Slog.d(stringList);
 
         // int[] list
         List<int[]> intArrayList = new LinkedList<>();
@@ -503,20 +511,20 @@ public class SlogTest {
         intArrayList.add(new int[]{7, 83, 7893, 53});
         intArrayList.add(new int[]{1887, 4562, 3456, 463});
         intArrayList.add(new int[]{17986, 2789, 398, 4546});
-        Slog.dO(intArrayList);
+        Slog.d(intArrayList);
 
         // Object list
         arrayList.add(new int[]{379856, 274589, 398, 4546});
         arrayList.add(objectsArray);
         arrayList.add(new Object());
-        Slog.dO(arrayList);
+        Slog.d(arrayList);
     }
 
     @Test
     public void setTest() {
         // empty list test
         Set<Object> arrayList = new HashSet<>();
-        Slog.dO(arrayList);
+        Slog.d(arrayList);
 
         // string list
         Set<String> stringList = new CopyOnWriteArraySet<>();
@@ -524,7 +532,7 @@ public class SlogTest {
         stringList.add("7845");
         stringList.add("klslslg");
         stringList.add("skjweot");
-        Slog.dO(stringList);
+        Slog.d(stringList);
 
         // int[] list
         Set<int[]> intArrayList = new LinkedHashSet<>();
@@ -532,18 +540,18 @@ public class SlogTest {
         intArrayList.add(new int[]{7, 83, 7893, 53});
         intArrayList.add(new int[]{1887, 4562, 3456, 463});
         intArrayList.add(new int[]{17986, 2789, 398, 4546});
-        Slog.dO(intArrayList);
+        Slog.d(intArrayList);
 
         // Object list
         arrayList.add(new int[]{379856, 274589, 398, 4546});
         arrayList.add(objectsArray);
         arrayList.add(new Object());
-        Slog.dO(arrayList);
+        Slog.d(arrayList);
 
         // add itself
         //noinspection CollectionAddedToSelf
         arrayList.add(arrayList);
-        Slog.dO(arrayList);
+        Slog.d(arrayList);
     }
 
     @Test
@@ -551,7 +559,7 @@ public class SlogTest {
         // empty map
         @SuppressLint("UseSparseArrays")
         Map<Integer, Student> map = new HashMap<>();
-        Slog.dO(map);
+        Slog.d(map);
 
         // int map
         Map<Integer, Integer> intMap = new ConcurrentHashMap<>();
@@ -560,14 +568,14 @@ public class SlogTest {
         intMap.put(17687, 27678);
         intMap.put(76781, 27678);
         intMap.put(1786768, 26786);
-        Slog.dO(intMap);
+        Slog.d(intMap);
 
         // Object Map
         Map<Object, String> objectStringMap = new LinkedHashMap<>();
         objectStringMap.put(new Object(), "11223786");
         objectStringMap.put(new Object(), "475775486");
         objectStringMap.put(new Object(), "7856874757");
-        Slog.dO(objectStringMap);
+        Slog.d(objectStringMap);
 
         // student Map
         map.put(12345, new Student(12345, 54, "kdkk", true));
@@ -576,13 +584,13 @@ public class SlogTest {
         map.put(12345678, new Student(12345678, 25, "kdkk", true));
         map.put(1234555, new Student(1234555, 35, "kdkk", true));
         map.put(12345444, new Student(12345444, 45, "kdkk", true));
-        Slog.dO(map);
+        Slog.d(map);
 
         // map itself
         Map map1 = new Hashtable<>();
         //noinspection CollectionAddedToSelf,unchecked
         map1.put(map1, map1);
-        Slog.dO(map1);
+        Slog.d(map1);
     }
 
     /**
@@ -607,7 +615,7 @@ public class SlogTest {
 
         @Override
         public void run() {
-            String tag = "LogTestThread_" + index;
+            String tag = "TestThread_" + index;
             for (int i = 0; i < 20; i++) {
                 Slog.t(tag).d(tag + "_" + i);
             }
