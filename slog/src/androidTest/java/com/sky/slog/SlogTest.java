@@ -183,7 +183,7 @@ public class SlogTest {
         // logger
         startTime = System.currentTimeMillis();
         Logger.t("printTime").getSettings().methodCount(0).hideThreadInfo();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             Logger.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -192,7 +192,7 @@ public class SlogTest {
         // ViseLog
         ViseLog.getLogConfig().configShowBorders(false);
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             ViseLog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -200,7 +200,7 @@ public class SlogTest {
 
         // timer test
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             Timber.tag(tag).i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -209,7 +209,7 @@ public class SlogTest {
         Slog.getSetting().prefixTag(tag);
         Slog.getSetting().simpleMode(true);
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             Slog.i(testStr);
         }
         endTime = System.currentTimeMillis();
@@ -217,7 +217,7 @@ public class SlogTest {
 
         // logcat print
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             Log.i(tag, testStr);
         }
         endTime = System.currentTimeMillis();
