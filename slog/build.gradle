@@ -46,7 +46,7 @@ publish {
     userOrg = 'skyshen'//bintray.com用户名
     groupId = 'com.sky.slog'//jcenter上的路径
     artifactId = 'slog'//项目名称
-    publishVersion = '0.1.0'//版本号
+    publishVersion = '0.2.0'//版本号
     desc = 'this is a andoird log tools, its like logger and timber'
     website = 'https://github.com/shenbibo/Slog'
 }
