@@ -48,6 +48,7 @@ class LogAssemblerImpl extends LogAssembler {
                 continue;
             }
 
+            //noinspection StringBufferReplaceableByString
             StringBuilder builder = new StringBuilder();
             builder.append("║ ")
                    .append(level)
@@ -110,16 +111,6 @@ class LogAssemblerImpl extends LogAssembler {
 
     private void logDivider(List<String> messagesList) {
         messagesList.add(MIDDLE_BORDER);
-    }
-
-    private void logContent(List<String> messagesList, Throwable t, Object originalObject, Object... args) {
-        String[] compoundMessages = compoundMessage(t, originalObject, args);
-        for (String compoundMessage : compoundMessages) {
-            String[] splitMessages = compoundMessage.split(LINE_SEPARATOR);
-            for (String splitMessage : splitMessages) {
-                messagesList.add(getLineCompoundStr(splitMessage));
-            }
-        }
     }
 
     private String getLineCompoundStr(String line) {
