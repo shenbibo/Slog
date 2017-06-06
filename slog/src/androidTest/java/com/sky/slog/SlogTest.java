@@ -293,10 +293,12 @@ public class SlogTest {
     @Test
     public void json() {
         // inval json
-        String inval1 = "";
-        String inval2 = "{}";
-        Slog.json(inval1);
-        Slog.json(inval2);
+        String jsonEmpty = "";
+        String jsonEmpty2 = "{}";
+        String jsonNull = null;
+        Slog.json(jsonEmpty);
+        Slog.json(jsonEmpty2);
+        Slog.json(jsonNull);
 
         String json = "{'xyy1':[{'test1':'test1'},{'test2':'test2'}],'xyy2':{'test3':'test3','test4':'test4'}}";
 
