@@ -351,6 +351,10 @@ Slog.s(false).t("fiveSetting").th(true).m(5).o(2).i("this time set five temp set
 ![](http://of6l49ylt.bkt.clouddn.com/20170606-223327_five_temp_setting_log.png)
 
 
+### `SlogTest`测试用例集
+
+更多的用法可以参考`slog/src/androidTest/java/com.sky.slog/SlogTest.java`。
+
 ### 添加日志适配器
 
 `Slog`框架目前只提供一个实现的日志适配器`LogcatTree`，本框架支持自定义日志适配器，所有的日志适配器都必须要继承`Tree`抽象类或者其子类，为了保证足够的扩展性，我们在`Tree`的接口中除了可以接收到封装处理好的日志之外，也可以对原始的日志数据进行处理。
