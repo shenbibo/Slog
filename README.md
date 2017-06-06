@@ -44,14 +44,15 @@ Slog.init(new LogcatTree())     // 初始化，设置适配器
 ```
 
 以上方法的作用与默认值。
-方法 | 默认值 | 作用
---------|--------------|-------------------
-prefixTag      | "Android" | 设置全局日志前缀。
-logPriority    | Slog.FULL | 日志的输出级别，FULL表示可以输出任何级别的日志， NONE，表示不输出任何日志。
-methodCount    | 1         | 设置显示栈中方法到最终组装的日志中的个数，默认从调用日志接口的方法往stack下计算。
-methodOffset   | 0         | 设置从调用日志打印接口的方法往stack下的偏移数。
-showThreadInfo | false     | 设置是否打印日志的线程的信息。
-simpleMode     | false     | 设置简单模式，无任何格式，不显示线程信息，方法调用，等同于调用logcat。
+
+方法 | 默认值 | 作用 |
+--------|--------------|-------------------|
+prefixTag      | "Android" | 设置全局日志前缀。|
+logPriority    | Slog.FULL | 日志的输出级别，FULL表示可以输出任何级别的日志， NONE，表示不输出任何日志。|
+methodCount    | 1         | 设置显示栈中方法到最终组装的日志中的个数，默认从调用日志接口的方法往stack下计算。|
+methodOffset   | 0         | 设置从调用日志打印接口的方法往stack下的偏移数。|
+showThreadInfo | false     | 设置是否打印日志的线程的信息。|
+simpleMode     | false     | 设置简单模式，无任何格式，不显示线程信息，方法调用，等同于调用logcat。|
 
 **注意，上表中，如果`simpleMode`为`true`，则`methodCount, methodOffset, showThreadInfo`将无效**
 
@@ -84,7 +85,7 @@ Slog.d("this is a format string log, str1 = %s, int value2 = %d, boolean3 = %b",
 ```java
 // 打印throwable
 Slog.e(new Throwable());
-Slog.w(new Runti)
+Slog.w(new RuntimeException(), "test log with warn priority = %d", Slog.WARN);
 ```
 
 ![normal_error_warn_log](http://of6l49ylt.bkt.clouddn.com/20170606-005645_normal_error_warn_log.png)
