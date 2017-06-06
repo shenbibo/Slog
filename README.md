@@ -1,4 +1,5 @@
-# 概述
+# Slog
+## 概述
 
 `Slog`是一个轻量级的`Android`平台的日志库，其是基于对当前开源的日志框架`Logger`和`Timber`的一个组合与扩展。具有极大的可扩展性，相比于原生`Android Log`，有以下新特性。
 
@@ -16,12 +17,7 @@ compile 'com.sky.slog:slog:0.3.0'
 
 ## 用法示例
 
-## 主要类介绍
-
-`Setting` 日志输出的配置类
-`Tree`类是日志的适配器的抽象基类，上述代码中`LogcatTree`就继承自它，每一个适配器都是对要打印的日志的一种最终的处理方式，所以`LogcatTree`的处理方式就是将日志打印到`Android Log`中。
-
-## 初始化`Slog`
+### 初始化`Slog`
 
 一般地在应用的`Application`类的`onCreate()`方法中调用如下类似代码。
 
@@ -58,7 +54,7 @@ simpleMode     | false     | 设置简单模式，无任何格式，不显示线
 
 另外我们还可以通过`Slog.getSetting()`获取`Setting`对象之后，在任何时候对全局Log输出配置项进行修改。
 
-## 基本使用
+### 基本使用
 
 使用以下方式初始化`Slog`。
 
@@ -66,7 +62,7 @@ simpleMode     | false     | 设置简单模式，无任何格式，不显示线
 Slog.init(LogcatTree()).perfixTag("TestSlog").showThreadInfo(true);
 ```
 
-### 打印普通日志
+#### 打印普通日志
 
 ```java
 // 打印普通日志
@@ -80,7 +76,7 @@ Slog.d("this is a format string log, str1 = %s, int value2 = %d, boolean3 = %b",
 
 ![normal_log](http://of6l49ylt.bkt.clouddn.com/20170606-005507_normal_log.png)
 
-### 打印错误日志
+#### 打印错误日志
 
 ```java
 // 打印throwable
@@ -90,11 +86,11 @@ Slog.w(new RuntimeException(), "test log with warn priority = %d", Slog.WARN);
 
 ![error_warn_log](http://of6l49ylt.bkt.clouddn.com/20170607-003259_error_warn_log.png)
 
-## 打印`json`和`xml`
+### 打印`json`和`xml`
 
 `json`和`xml`字符串采用的日志级别都是`Debug`的。
 
-### 打印json字符串
+#### 打印json字符串
 
 ```java
 String jsonEmpty = "";
@@ -117,7 +113,7 @@ Slog.json(jsonArray);
 ![json1](http://of6l49ylt.bkt.clouddn.com/20170606-143648_json1.png)
 ![json2](http://of6l49ylt.bkt.clouddn.com/20170606-143709_json2.png)
 
-### 打印`xml`字符串
+#### 打印`xml`字符串
 
 ```java
 String androidXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
@@ -148,11 +144,11 @@ Slog.xml(androidXml);
 
 ![xml_log](http://of6l49ylt.bkt.clouddn.com/20170606-144001_xml_log.png)
 
-## 打印对象
+### 打印对象
 
 `Slog` 支持对对象的打印，其原理是给每个不同的对象类型添加对应的对象解析器，默认提供对数组，集合等解析，支持自定义对象解析器。
 
-### 打印`null`对象
+#### 打印`null`对象
 
 ```java
 Slog.i(null);
@@ -161,7 +157,7 @@ Slog.i("");
 
 ![null_object](http://of6l49ylt.bkt.clouddn.com/20170606-145029_nullObject.png)
 
-### 打印数组对象
+#### 打印数组对象
 
 ```java
 // 全局多维对象数组
@@ -206,7 +202,7 @@ Slog.i(objectsArray);
 
 ![array_log](http://of6l49ylt.bkt.clouddn.com/20170606-214007_arrayLog.png)
 
-### 打印自定义对象解析器的对象
+#### 打印自定义对象解析器的对象
 
 有如下一个`Student`类。
 
@@ -272,7 +268,7 @@ Slog.d(s);
 
 ![object_parser](http://of6l49ylt.bkt.clouddn.com/20170606-220410_objectParser.png)
 
-### 打印`Collection`对象
+#### 打印`Collection`对象
 
 这里以`Map`举例。
 
@@ -315,7 +311,7 @@ Slog.d(map1);
 
 ![map_log](http://of6l49ylt.bkt.clouddn.com/20170606-215157_map_log.png)
 
-## 指定临时的配置项打印日志
+### 指定临时的配置项打印日志
 
 前面的示例都是不修改输出配置项时打印的日志，但是在很多时候我们可能根据不同的场景，需要采用不同的日志输出配置。
 
@@ -333,7 +329,7 @@ Slog.s()        // 指定下一次当前线程打印日志是否采用简单模�
 
 上面的配置方法可以单个使用也可以组合使用。
 
-### 单个使用
+#### 单个使用
 
 ```java
 Slog.t("custom22").i("set tag to custom");
@@ -346,7 +342,7 @@ Slog.s(true).i("set to simple mode");
 
 ![temp_setting_log](http://of6l49ylt.bkt.clouddn.com/20170606-223102_temp_setting_log.png)
 
-### 联合使用
+#### 联合使用
 
 ```java
 Slog.s(false).t("fiveSetting").th(true).m(5).o(2).i("this time set five temp setting for test");
@@ -355,7 +351,7 @@ Slog.s(false).t("fiveSetting").th(true).m(5).o(2).i("this time set five temp set
 ![](http://of6l49ylt.bkt.clouddn.com/20170606-223327_five_temp_setting_log.png)
 
 
-## 添加日志适配器
+### 添加日志适配器
 
 `Slog`框架目前只提供一个实现的日志适配器`LogcatTree`，本框架支持自定义日志适配器，所有的日志适配器都必须要继承`Tree`抽象类或者其子类，为了保证足够的扩展性，我们在`Tree`的接口中除了可以接收到封装处理好的日志之外，也可以对原始的日志数据进行处理。
 
@@ -394,7 +390,7 @@ public class FileTree extends Tree {
 
 **注意：** 在每个日志适配器中，我们可以根据需要最终自己确定将组装之后的日志或者原始日志如何处理。
 
-## 结构概述
+### 结构概述
 
 Slog打印日志的基本流程可以归纳为以下几个步骤。
 - 打印日志，调用对应的`Slog`接口。
@@ -417,7 +413,7 @@ Slog打印日志的基本流程可以归纳为以下几个步骤。
 - `LogController`，分别实现了`TreeManger`，`LogDispatcher`接口，通过其分发日志功能，将日志分发到其管理的日志适配器中。
 
 
-## 致谢
+### 致谢
 
 本库最终形成，分别参考了以下三个库，本库的设计借鉴了它们的设计思想，甚至有些代码是直接从它们的源码中拷贝过来的，十分感谢。
 
