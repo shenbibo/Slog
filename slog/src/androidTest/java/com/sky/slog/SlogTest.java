@@ -41,7 +41,7 @@ public class SlogTest {
                             new int[]{1, 2, 3, 4, 5, 6},
                             new int[]{7878, 6565, 84155, 7542, 0}}}};
 
-    private static void cofigSlog(){
+    private static void cofigSlog() {
         Slog.init(new LogcatTree())
             .showThreadInfo(true)
             .prefixTag("test")
@@ -67,7 +67,7 @@ public class SlogTest {
     }
 
     @Test
-    public void normalTest(){
+    public void normalTest() {
         // 打印普通日志
         Slog.d("sky debug");
         Slog.i("sky info");
@@ -77,6 +77,7 @@ public class SlogTest {
 
         // 打印throwable
         Slog.e(new Throwable());
+        Slog.w(new RuntimeException(), "test log with warn priority = %d", Slog.WARN);
     }
 
     @Test
@@ -123,6 +124,17 @@ public class SlogTest {
         Slog.o(300).i("100 offset");
     }
 
+    @Test
+    public void tempLogOutputSettingTest(){
+        Slog.t("custom22").i("set tag to custom");
+        Slog.th(false).i("hide the threadInfo");
+        Slog.m(0).i("test 0 method count print, so hide track");
+        Slog.m(3).i("test three method count println");
+        Slog.o(1).i("method offset 1");
+        Slog.s(true).i("set to simple mode");
+        Slog.s(false).t("fiveSetting").th(true).m(5).o(2).i("this time set five temp setting for test");
+    }
+
     /**
      * 测试三个开源工具格式化输出时的性能，结论：
      * 1000条日志下， 表现从好到坏 Logger >= Slog（和Logger十分接近） > ViseLog
@@ -144,11 +156,11 @@ public class SlogTest {
         }
         endTime = System.currentTimeMillis();
         String slogTime = "slog time = " + (endTime - startTime) + '\n';
-//
+        //
         Log.i(tag, "start for Logger test");
 
-         //logger 工具在连续打印大量的日志时，可能会出现读错误
-         //logger
+        //logger 工具在连续打印大量的日志时，可能会出现读错误
+        //logger
         startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             Logger.i(testStr);
@@ -159,7 +171,7 @@ public class SlogTest {
 
         // logger 工具在连续打印大量的日志时，会出现读错误
         Log.i(tag, "start for ViseLog test");
-//        // ViseLog
+        //        // ViseLog
         startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             ViseLog.i(testStr);
@@ -479,7 +491,7 @@ public class SlogTest {
         // 打印String
         String[] stringArray = new String[1024];
         for (int i = 1024; i < stringArray.length + 1024; i++) {
-            stringArray[i - 1024] = "" + i;
+            stringArray[i - 1024] = "is " + i;
         }
         Slog.i(stringArray);
 
@@ -502,10 +514,10 @@ public class SlogTest {
 
         // string list
         List<String> stringList = new ArrayList<>();
-        stringList.add("12345");
-        stringList.add("7845");
-        stringList.add("klslslg");
-        stringList.add("skjweot");
+        stringList.add("first123");
+        stringList.add("second456");
+        stringList.add("third789");
+        stringList.add("fourth101112");
         Slog.d(stringList);
 
         // int[] list
@@ -581,12 +593,12 @@ public class SlogTest {
         Slog.d(objectStringMap);
 
         // student Map
-        map.put(12345, new Student(12345, 54, "kdkk", true));
-        map.put(123456, new Student(123456, 56, "kdkk", true));
-        map.put(1234567, new Student(1234567, 15, "kdkk", true));
-        map.put(12345678, new Student(12345678, 25, "kdkk", true));
-        map.put(1234555, new Student(1234555, 35, "kdkk", true));
-        map.put(12345444, new Student(12345444, 45, "kdkk", true));
+        map.put(12345, new Student(12345, 54, "sky", true));
+        map.put(123456, new Student(123456, 56, "sky2", true));
+        map.put(1234567, new Student(1234567, 15, "sky3", true));
+        map.put(12345678, new Student(12345678, 25, "sky4", true));
+        map.put(1234555, new Student(1234555, 35, "sky5", true));
+        map.put(12345444, new Student(12345444, 45, "sky6", true));
         Slog.d(map);
 
         // map itself
@@ -594,6 +606,19 @@ public class SlogTest {
         //noinspection CollectionAddedToSelf,unchecked
         map1.put(map1, map1);
         Slog.d(map1);
+    }
+
+    @Test
+    public void testObjectParser() {
+        Slog.removeObjectParser(StudentParser.class);
+
+        // 没有添加解析器之前
+        Student s = new Student(12345, 54, "sky", true);
+        Slog.d(s);
+
+        // 添加解析器之后
+        Slog.addObjectParser(new StudentParser());
+        Slog.d(s);
     }
 
     /**
