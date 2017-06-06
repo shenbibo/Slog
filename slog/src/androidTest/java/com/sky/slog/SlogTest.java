@@ -92,6 +92,10 @@ public class SlogTest {
         Slog.t("custom2").e("i prefixTag test = %d", 2);
         Slog.t("custom3").e(new Throwable(), "i prefixTag test = %d", 3);
         //        Slog.s(true).e("112", null);
+        String tag = Slog.getSetting().getPrefixTag();
+        Slog.getSetting().prefixTag("");
+        Slog.i("this is no prefix tag and custom tag");
+        Slog.getSetting().prefixTag(tag);
     }
 
     @Test
@@ -125,7 +129,7 @@ public class SlogTest {
     }
 
     @Test
-    public void tempLogOutputSettingTest(){
+    public void tempLogOutputSettingTest() {
         Slog.t("custom22").i("set tag to custom");
         Slog.th(false).i("hide the threadInfo");
         Slog.m(0).i("test 0 method count print, so hide track");
