@@ -88,7 +88,7 @@ Slog.e(new Throwable());
 Slog.w(new RuntimeException(), "test log with warn priority = %d", Slog.WARN);
 ```
 
-![normal_error_warn_log](http://of6l49ylt.bkt.clouddn.com/20170606-005645_normal_error_warn_log.png)
+![error_warn_log](http://of6l49ylt.bkt.clouddn.com/20170607-003259_error_warn_log.png)
 
 ## 打印`json`和`xml`
 
