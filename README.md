@@ -1,4 +1,7 @@
 # Slog
+
+GitHub项目地址：[https://github.com/shenbibo/Slog](https://github.com/shenbibo/Slog)
+
 ## 概述
 
 `Slog`是一个轻量级的`Android`平台的日志库，其是基于对当前开源的日志框架`Logger`和`Timber`的一个组合与扩展。具有极大的可扩展性，相比于原生`Android Log`，有以下新特性。
@@ -348,12 +351,8 @@ Slog.s(true).i("set to simple mode");
 Slog.s(false).t("fiveSetting").th(true).m(5).o(2).i("this time set five temp setting for test");
 ```
 
-![](http://of6l49ylt.bkt.clouddn.com/20170606-223327_five_temp_setting_log.png)
+![five_temp_setting_log](http://of6l49ylt.bkt.clouddn.com/20170606-223327_five_temp_setting_log.png)
 
-
-### `SlogTest`测试用例集
-
-更多的用法可以参考`slog/src/androidTest/java/com.sky.slog/SlogTest.java`。
 
 ### 添加日志适配器
 
@@ -385,8 +384,8 @@ public class FileTree extends Tree {
     }
 }
 ```
- 
- 将其添加到日志适配器列表中，以后就可以正常使用了。
+
+将其添加到日志适配器列表中，以后就可以正常使用了。
 
  ```java
  Slog.plantTree(new FileTree());
@@ -394,9 +393,14 @@ public class FileTree extends Tree {
 
 **注意：** 在每个日志适配器中，我们可以根据需要最终自己确定将组装之后的日志或者原始日志如何处理。
 
-### 结构概述
+## `SlogTest`测试用例集
+
+更多的用法可以参考`slog/src/androidTest/java/com.sky.slog/SlogTest.java`。
+
+## 结构概述
 
 Slog打印日志的基本流程可以归纳为以下几个步骤。
+
 - 打印日志，调用对应的`Slog`接口。
 - 根据当前日志全局配置，判断是否对需要输出日志（当前是只判断允许输出的日志级别`Priority`）。
 - 结合全局日志配置和单次指定的日志配置(单次优先级高于全局)，对原始日志进行组装。
@@ -417,7 +421,7 @@ Slog打印日志的基本流程可以归纳为以下几个步骤。
 - `LogController`，分别实现了`TreeManger`，`LogDispatcher`接口，通过其分发日志功能，将日志分发到其管理的日志适配器中。
 
 
-### 致谢
+## 致谢
 
 本库最终形成，分别参考了以下三个库，本库的设计借鉴了它们的设计思想与代码实现，十分感谢。
 
