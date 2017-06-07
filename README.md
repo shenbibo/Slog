@@ -16,7 +16,7 @@ GitHub项目地址：[https://github.com/shenbibo/Slog](https://github.com/shenb
 ## 引用方法
 
 ```groovy
-compile 'com.sky.slog:slog:0.3.0'
+compile 'com.sky.slog:slog:0.4.0'
 ```
 
 ## 用法示例
