@@ -1,5 +1,7 @@
 package com.sky.slog;
 
+import android.text.TextUtils;
+
 /**
  * 全局配置属性设置
  * [detail]
@@ -168,7 +170,7 @@ public class Setting {
     }
 
     String createCompoundTag(String srcTag) {
-        return prefixTag + "-" + srcTag;
+        return TextUtils.isEmpty(prefixTag) ? srcTag : (prefixTag + "-" + srcTag);
     }
 
     @Override
