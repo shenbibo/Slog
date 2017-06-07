@@ -8,7 +8,7 @@ import com.sky.slog.LogController.LogManagerImpl;
  * Created by sky on 2017/5/29.
  */
 final class LogFactory {
-    static LogAssembler createLogController(){
+    static LogAssembler createDefaultLogAssembler(){
         return new LogAssemblerImpl();
     }
 

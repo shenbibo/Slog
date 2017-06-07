@@ -8,6 +8,10 @@ import java.util.List;
 
 import static com.sky.slog.Helper.covertJson;
 import static com.sky.slog.Helper.covertXml;
+import static com.sky.slog.Helper.formatMessage;
+import static com.sky.slog.Helper.getStackTraceString;
+import static com.sky.slog.Helper.splitString;
+import static com.sky.slog.LogConstant.OBJECT_NULL_STRING;
 import static com.sky.slog.Slog.DEBUG;
 import static com.sky.slog.Slog.FULL;
 import static com.sky.slog.Slog.NONE;
@@ -122,11 +126,13 @@ public abstract class LogAssembler {
         dispatchLog(priority, finalTag, t, compoundMessages, originalObject, args);
     }
 
-    protected abstract String[] onSimpleModeLog(int priority, String tag, Throwable t, Object originalObject, Object... args);
-
-    protected abstract void onFormatModeLogMethodStackTrace(List<String> compoundMessagesList, int methodCount, int stackOffset, StackTraceElement[] trace);
+    protected String[] onSimpleModeLog(int priority, String tag, Throwable t, Object originalObject, Object... args){
+        return compoundMessage(t, originalObject, args);
+    }
 
     protected abstract void onFormatModeLogThreadInfo(List<String> compoundMessagesList, Thread curThread);
+
+    protected abstract void onFormatModeLogMethodStackTrace(List<String> compoundMessagesList, int methodCount, int stackOffset, StackTraceElement[] trace);
 
     protected abstract void onFormatModeLogContent(List<String> compoundMessagesList, Throwable t, Object originalObject, Object[] args);
 
@@ -183,5 +189,30 @@ public abstract class LogAssembler {
             methodCount = trackLength - stackOffset - 1;
         }
         return methodCount;
+    }
+
+    /** 组装格式化字符串或解析对象，并且如果长度超过限制则进行分割 */
+    protected String[] compoundMessage(Throwable t, Object originalObject, Object... args) {
+        String compoundMessage;
+        if (originalObject == NULL_OBJECT || originalObject == NULL_STRING) {
+            compoundMessage = OBJECT_NULL_STRING;
+        } else {
+            if (originalObject instanceof String) {
+                // 优化代码，如果args参数为null,或者长度为0，则直接返回字符串
+                if (args == null || args.length == 0) {
+                    compoundMessage = (String) originalObject;
+                } else {
+                    compoundMessage = formatMessage((String) originalObject, args);
+                }
+            } else {
+                compoundMessage = ParseObject.objectToString(originalObject);
+            }
+        }
+
+        if (t != null) {
+            compoundMessage += " : " + getStackTraceString(t);
+        }
+
+        return splitString(compoundMessage);
     }
 }

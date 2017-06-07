@@ -443,6 +443,19 @@ public class SlogTest {
         Slog.i("");
     }
 
+    /**
+     * 使用一个简单的不带横线的日志组装器替代默认日志组装器
+     * */
+    @Test
+    public void simpleLogAssemblerTest(){
+        Slog.setLogAssembler(new SimpleLogAssembler());
+        Slog.i("set log assembler to simple");
+        Slog.m(10).i("simple log assembler set methodCount to 10");
+
+        Slog.setLogAssembler(null);
+        Slog.i("Slog.setLogAssembler(null), so turn to default log assembler");
+    }
+
     @Test
     public void object() {
         String[] name = {"sga", "gsadgsa", "sgdsfhds"};

@@ -15,16 +15,11 @@ import static com.sky.slog.LogConstant.OBJECT_NULL_STRING;
 import static com.sky.slog.LogConstant.TOP_BORDER;
 
 /**
- * [日志中间处理转发类]
+ * [默认日志组装实现类]
  * [detail]
  * Created by Sky on 2017/5/25.
  */
 class LogAssemblerImpl extends LogAssembler {
-
-    @Override
-    protected String[] onSimpleModeLog(int priority, String tag, Throwable t, Object originalObject, Object... args) {
-        return compoundMessage(t, originalObject, args);
-    }
 
     @Override
     protected void onFormatModeLogTop(List<String> compoundMessagesList) {
@@ -82,31 +77,6 @@ class LogAssemblerImpl extends LogAssembler {
     @Override
     protected void onFormatModeLogBottom(List<String> compoundMessagesList) {
         compoundMessagesList.add(BOTTOM_BORDER);
-    }
-
-    /** 组装格式化字符串或解析对象，并且如果长度超过限制则进行分割 */
-    private String[] compoundMessage(Throwable t, Object originalObject, Object... args) {
-        String compoundMessage;
-        if (originalObject == NULL_OBJECT || originalObject == NULL_STRING) {
-            compoundMessage = OBJECT_NULL_STRING;
-        } else {
-            if (originalObject instanceof String) {
-                // 优化代码，如果args参数为null,或者长度为0，则直接返回字符串
-                if (args == null || args.length == 0) {
-                    compoundMessage = (String) originalObject;
-                } else {
-                    compoundMessage = formatMessage((String) originalObject, args);
-                }
-            } else {
-                compoundMessage = ParseObject.objectToString(originalObject);
-            }
-        }
-
-        if (t != null) {
-            compoundMessage += " : " + getStackTraceString(t);
-        }
-
-        return splitString(compoundMessage);
     }
 
     private void logDivider(List<String> messagesList) {

@@ -1,5 +1,7 @@
 package com.sky.slog;
 
+import android.support.annotation.NonNull;
+
 import com.sky.slog.parse.Parser;
 
 import java.util.ArrayList;
@@ -206,6 +208,10 @@ public final class Slog {
         return SLOG.init(tree);
     }
 
+    public static Setting init(Tree tree, LogAssembler logAssembler) {
+        return SLOG.init(tree, logAssembler);
+    }
+
     /**
      * 添加一个新的日志打印的适配器到日志打印器中
      */
@@ -229,6 +235,14 @@ public final class Slog {
     }
 
     /**
+     * 设置自定义的日志组装器
+     * @param logAssembler  如果为null，则使用默认的日志组装器。
+     */
+    public static void setLogAssembler(LogAssembler logAssembler) {
+        SLOG.setLogAssembler(logAssembler);
+    }
+
+    /**
      * 添加对象解析器，每一个确切的类型，只能添加一个对象解析器，如果要添加的已经存在，则替换原来的旧的，并且添加到解析器列表首位。
      * <p>
      * 当一个对象存在多个其超类的解析器时，取列表从0开始遇到的第一个超类作为解析器。
@@ -246,9 +260,10 @@ public final class Slog {
     }
 
     public static class SlogImpl {
-        private LogAssembler logAssembler;
         Setting setting;
         TreeManager treeManager;
+        private LogAssembler logAssembler;
+        private LogDispatcher logDispatcher;
 
         static final SlogImpl SLOG = new SlogImpl();
 
@@ -349,16 +364,17 @@ public final class Slog {
         }
 
         Setting init(Tree tree) {
+            return init(tree, LogFactory.createDefaultLogAssembler());
+        }
+
+        Setting init(Tree tree, LogAssembler logAssembler) {
             if (setting == null) {
                 setting = new Setting();
 
                 LogController logController = LogFactory.createLogManager();
 
-                logAssembler = LogFactory.createLogController();
-                List<String> callerClassName = new ArrayList<>();
-                callerClassName.add(Slog.class.getName());
-                callerClassName.add(this.getClass().getName());
-                logAssembler.init(callerClassName, setting, logController);
+                logDispatcher = logController;
+                setLogAssembler(logAssembler);
 
                 treeManager = logController;
                 treeManager.plantTree(tree);
@@ -366,6 +382,23 @@ public final class Slog {
                 ParseObject.init();
             }
             return setting;
+        }
+
+        void setLogAssembler(LogAssembler logAssembler) {
+            if (logAssembler == null) {
+                logAssembler = LogFactory.createDefaultLogAssembler();
+            }
+            logAssembler.init(getCallerClass(), setting, logDispatcher);
+            this.logAssembler = logAssembler;
+
+        }
+
+        @NonNull
+        private List<String> getCallerClass() {
+            List<String> callerClassName = new ArrayList<>();
+            callerClassName.add(Slog.class.getName());
+            callerClassName.add(this.getClass().getName());
+            return callerClassName;
         }
     }
 }

@@ -19,11 +19,11 @@ import javax.xml.transform.stream.StreamSource;
 import static com.sky.slog.LogConstant.OBJECT_NULL_STRING;
 
 /**
- * [function]
+ * [日志组合的帮助的工具类]
  * [detail]
  * Created by Sky on 2017/5/25.
  */
-class Helper {
+public class Helper {
     /**
      * It is used for json pretty print
      */
@@ -36,13 +36,7 @@ class Helper {
      */
     private static final int CHUNK_SIZE = 4000;
 
-    /**
-     * KEY = Object.getClass().getName();
-     * value = Parser.getClass();
-     * */
-    private static final Map<String, Class<? extends Parser>> parseObjects = new ConcurrentHashMap<>();
-
-    static String covertJson(String json) {
+    public static String covertJson(String json) {
         if (isEmpty(json)) {
             return "Empty/Null json content";
         }
@@ -62,7 +56,7 @@ class Helper {
         }
     }
 
-    static String covertXml(String xml) {
+    public static String covertXml(String xml) {
         if (isEmpty(xml)) {
             return "Empty/Null xml content";
         }
@@ -83,7 +77,7 @@ class Helper {
     /**
      * 因为logcat对字数有限制4000，所以当字数大于4000时进行拆分成数组
      */
-    static String[] splitString(@NonNull String string) {
+    public static String[] splitString(@NonNull String string) {
         int length = string.length();
         if (length <= CHUNK_SIZE) {
             return new String[]{string};
@@ -97,20 +91,20 @@ class Helper {
         return strings;
     }
 
-    static boolean isEmpty(String str) {
+    public static boolean isEmpty(String str) {
         return str == null || str.length() == 0;
     }
 
-    static String formatMessage(String message, Object... args) {
+    public static String formatMessage(String message, Object... args) {
         return args == null ? OBJECT_NULL_STRING : String.format(message, args);
     }
 
-    static String getSimpleClassName(String name) {
+    public static String getSimpleClassName(String name) {
         int lastIndex = name.lastIndexOf(".");
         return name.substring(lastIndex + 1);
     }
 
-    static String getStackTraceString(Throwable t) {
+    public static String getStackTraceString(Throwable t) {
         // Don't replace this with Log.getStackTraceString() - it hides
         // UnknownHostException, which is not what we want.
         StringWriter sw = new StringWriter(256);
@@ -120,7 +114,7 @@ class Helper {
         return sw.toString();
     }
 
-    static String createThreadInfo(Thread thread){
+    public static String createThreadInfo(Thread thread){
         return "Thread.name = " + thread.getName();
     }
 }

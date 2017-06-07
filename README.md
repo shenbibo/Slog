@@ -11,6 +11,7 @@ GitHub项目地址：[https://github.com/shenbibo/Slog](https://github.com/shenb
 - 支持打印对象，支持自定义对象解析器，默认提供对数组，集合等解析。
 - 支持使用多个自定义日志适配器，以决定日志的不同处理方式，默认提供`LogcatTree`适配器。
 - 支持每次打印日志之前自定义日志输出配置，从而达到不同的日志输出效果。
+- 支持自定义日志组装器，从而显示不同效果的格式化字符串。
 
 ## 引用方法
 
@@ -392,6 +393,71 @@ public class FileTree extends Tree {
  ```
 
 **注意：** 在每个日志适配器中，我们可以根据需要最终自己确定将组装之后的日志或者原始日志如何处理。
+
+### 自定义日志组装器
+
+通过继承`LogAssembler`抽象类，我们可以实现自己定义的日志组装器。
+
+```java
+public class SimpleLogAssembler extends LogAssembler {
+
+    @Override
+    protected void onFormatModeLogMethodStackTrace(List<String> compoundMessagesList, int methodCount, int stackOffset,
+            StackTraceElement[] trace) {
+        for (int i = methodCount; i > 0; i--) {
+            int stackIndex = i + stackOffset;
+            if (stackIndex >= trace.length) {
+                continue;
+            }
+
+            //noinspection StringBufferReplaceableByString
+            StringBuilder builder = new StringBuilder();
+            builder.append(getSimpleClassName(trace[stackIndex].getClassName()))
+                   .append(".")
+                   .append(trace[stackIndex].getMethodName())
+                   .append("(")
+                   .append(trace[stackIndex].getFileName())
+                   .append(":")
+                   .append(trace[stackIndex].getLineNumber())
+                   .append(")");
+
+            compoundMessagesList.add(builder.toString());
+        }
+    }
+
+    @Override
+    protected void onFormatModeLogThreadInfo(List<String> compoundMessagesList, Thread curThread) {
+        compoundMessagesList.add(Helper.createThreadInfo(curThread));
+    }
+
+    @Override
+    protected void onFormatModeLogContent(List<String> compoundMessagesList, Throwable t, Object originalObject, Object[] args) {
+        String[] compoundMessages = compoundMessage(t, originalObject, args);
+        for (String compoundMessage : compoundMessages) {
+            String[] splitMessages = compoundMessage.split(LINE_SEPARATOR);
+            Collections.addAll(compoundMessagesList, splitMessages);
+        }
+    }
+}
+```
+
+以上三个方法是子类必须要实现的，还有其他的方法子类可以选择性的复写。
+
+以下是调用实例。
+
+```java
+Slog.setLogAssembler(new SimpleLogAssembler());
+Slog.i("set log assembler to simple");
+Slog.m(10).i("simple log assembler set methodCount to 10");
+
+// 设置为null，将使用默认的日志组装器
+Slog.setLogAssembler(null);
+Slog.i("Slog.setLogAssembler(null), so turn to default log assembler");
+```
+
+![set_log_assembler](http://of6l49ylt.bkt.clouddn.com/20170607-165459_set_log_assembler.png)
+
+另外，我们也可以在初始化时调用`Slog.init(Tree, LogAssembler)`方法时进行指定日志组装器。
 
 ## `SlogTest`测试用例集
 
