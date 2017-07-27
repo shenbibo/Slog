@@ -84,7 +84,7 @@ public abstract class LogAssembler {
             return;
         }
 
-        String finalTag = tag != null ? setting.createCompoundTag(tag) : setting.getLocalTag();
+        String finalTag = tag != null ? tag : setting.getLocalTag();
         String[] compoundMessages;
 
         // 简单模式不组装消息直接返回

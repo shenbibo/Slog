@@ -65,7 +65,7 @@ public final class Slog {
     /**
      * 默认日志TAG
      */
-    public static final String DEFAULT_TAG = "Android";
+    public static final String DEFAULT_TAG = "Slog";
 
     /**
      * Log a verbose message with optional format args.

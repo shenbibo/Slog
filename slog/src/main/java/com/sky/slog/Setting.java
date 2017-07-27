@@ -1,7 +1,5 @@
 package com.sky.slog;
 
-import android.text.TextUtils;
-
 /**
  * 全局配置属性设置
  * [detail]
@@ -14,7 +12,7 @@ public class Setting {
     private boolean showThreadInfo = false;
     /** 简单模式，设置为true之后和正常的普通log一样 */
     private boolean simpleMode = false;
-    private String prefixTag = Slog.DEFAULT_TAG;
+    private String defaultTag = Slog.DEFAULT_TAG;
 
     public int getMethodCount() {
         return methodCount;
@@ -43,13 +41,13 @@ public class Setting {
         return this;
     }
 
-    public String getPrefixTag() {
-        return prefixTag;
+    public String getDefaultTag() {
+        return defaultTag;
     }
 
-    public Setting prefixTag(String prefixTag) {
+    public Setting defaultTag(String prefixTag) {
         if (prefixTag != null) {
-            this.prefixTag = prefixTag;
+            this.defaultTag = prefixTag;
         }
         return this;
     }
@@ -120,9 +118,8 @@ public class Setting {
         String localTag = threadLocalTag.get();
         if (localTag != null) {
             threadLocalTag.remove();
-            localTag = createCompoundTag(localTag);
         } else {
-            localTag = prefixTag;
+            localTag = defaultTag;
         }
 
         return localTag;
@@ -169,10 +166,6 @@ public class Setting {
         return localShowThreadInfo;
     }
 
-    String createCompoundTag(String srcTag) {
-        return TextUtils.isEmpty(prefixTag) ? srcTag : (prefixTag + "-" + srcTag);
-    }
-
     @Override
     public String toString() {
         return "Setting{" +
@@ -181,7 +174,7 @@ public class Setting {
                 ", methodOffset=" + methodOffset +
                 ", showThreadInfo=" + showThreadInfo +
                 ", simpleMode=" + simpleMode +
-                ", prefixTag='" + prefixTag + '\'' +
+                ", defaultTag='" + defaultTag + '\'' +
                 '}';
     }
 }

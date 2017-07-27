@@ -44,7 +44,7 @@ public class SlogTest {
     private static void cofigSlog() {
         Slog.init(new LogcatTree())
             .showThreadInfo(true)
-            .prefixTag("test")
+            .defaultTag("test")
             .logPriority(Slog.FULL)
             .methodCount(2)
             .methodOffset(1)
@@ -53,7 +53,9 @@ public class SlogTest {
 
     @BeforeClass
     public static void init() {
-        Slog.init(new LogcatTree()).prefixTag("TestSlog").showThreadInfo(true);
+        Slog.init(new LogcatTree())
+            .defaultTag("TestSlog")
+            .showThreadInfo(true);
 
         Slog.addObjectParser(new StudentParser());
         Logger.init("printTime").methodCount(1);
@@ -82,20 +84,20 @@ public class SlogTest {
 
     @Test
     public void logIWithDefaultTag() {
-        Slog.i("i no prefixTag Test");
-        Slog.i("i no prefixTag test = %d", 2);
+        Slog.i("i no defaultTag Test");
+        Slog.i("i no defaultTag test = %d", 2);
     }
 
     @Test
     public void logEWithCustomTag() {
-        Slog.t("custom").e("i prefixTag Test");
-        Slog.t("custom2").e("i prefixTag test = %d", 2);
-        Slog.t("custom3").e(new Throwable(), "i prefixTag test = %d", 3);
+        Slog.t("custom").e("i defaultTag Test");
+        Slog.t("custom2").e("i defaultTag test = %d", 2);
+        Slog.t("custom3").e(new Throwable(), "i defaultTag test = %d", 3);
         //        Slog.s(true).e("112", null);
-        String tag = Slog.getSetting().getPrefixTag();
-        Slog.getSetting().prefixTag("");
+        String tag = Slog.getSetting().getDefaultTag();
+        Slog.getSetting().defaultTag("");
         Slog.i("this is no prefix tag and custom tag");
-        Slog.getSetting().prefixTag(tag);
+        Slog.getSetting().defaultTag(tag);
     }
 
     @Test
@@ -151,7 +153,7 @@ public class SlogTest {
         String tag = "printTime";
         String testStr = "this is a test string, so i will print the time to you, this is the log msg, good good day day up";
         // 默认设置测试1000
-        Slog.getSetting().prefixTag(tag);
+        Slog.getSetting().defaultTag(tag);
         Slog.getSetting().simpleMode(false).methodCount(1).showThreadInfo(true);
         Log.i(tag, "start for Slog test");
         startTime = System.currentTimeMillis();
@@ -225,7 +227,7 @@ public class SlogTest {
         endTime = System.currentTimeMillis();
         String timberTime = "timber  time = " + (endTime - startTime) + '\n';
 
-        Slog.getSetting().prefixTag(tag);
+        Slog.getSetting().defaultTag(tag);
         Slog.getSetting().simpleMode(true);
         startTime = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
@@ -392,8 +394,8 @@ public class SlogTest {
         Slog.i("global simpleMode set to %b", simpleMode);
 
         String prefixTag = "new test Tag";
-        setting.prefixTag(prefixTag);
-        Slog.i("global prefixTag set to %s", prefixTag);
+        setting.defaultTag(prefixTag);
+        Slog.i("global defaultTag set to %s", prefixTag);
 
         // after set all above param, now i user everytime setting
         Slog.t("good").m(5).o(2).s(false).th(true).i("this is the old story!!!");
